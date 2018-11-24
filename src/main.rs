@@ -1,5 +1,5 @@
 extern crate chordprostyle;
-use chordprostyle::SongPart;
+use chordprostyle::lex;
 
 use std::io::Read;
 use std::env;
@@ -15,8 +15,12 @@ fn main(){
     println!("contents {}", &mut contents);
 
     let chars = contents.chars();
-
-    for ch in chars{
-        println!("ch: {:?}", ch);
+    let result = lex(chars);
+    for a in result{
+        println!("a: {:?}", a);
     }
+
+//    for ch in chars{
+//        println!("ch: {:?}", ch);
+//    }
 }
