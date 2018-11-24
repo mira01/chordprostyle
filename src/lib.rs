@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::str::Chars;
 
 pub enum SongPart{
     Text,
@@ -6,24 +6,20 @@ pub enum SongPart{
     Directive,
 }
 
-//pub struct Lexer<'a>{
-//    stream: &'a mut Read,
-//    state: &'a str,
-//    flushing_condition: FnMut(&str) -> bool,
-//}
-//
-//impl<'b> Lexer<'b> {
-//    fn new(stream: &'b mut Read) -> &Lexer{
-//        *Lexer{
-//            stream: stream,
-//            state: "",
-//            flushing_condition: |character: &str|{
-//                if let Some(_) = Some(character){
-//                    true} else {false}
-//            }
-//        }
-//    }
-//}
+pub fn lex(song: Chars) -> Lexer {
+    Lexer::new(song)
+}
+pub struct Lexer<'a>{
+    stream: Chars<'a>,
+}
+
+impl<'a> Lexer<'a> {
+    fn new(stream: Chars) -> Lexer{
+        Lexer{
+            stream: stream,
+        }
+    }
+}
 
 
 #[cfg(test)]

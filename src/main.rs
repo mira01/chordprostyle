@@ -12,9 +12,11 @@ fn main(){
     f.read_to_string(&mut contents);
     
     println!("I got {:?} args: {:?}", args.len()-1, &args[1..]);
-    println!("contents {}", contents);
+    println!("contents {}", &mut contents);
 
-    for ch in contents.chars(){
+    let chars = contents.chars();
+
+    for ch in chars{
         println!("ch: {:?}", ch);
     }
 }
