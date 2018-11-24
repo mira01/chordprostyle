@@ -24,6 +24,25 @@ impl<'a> Lexer<'a> {
             state: SongPart::Empty,
         }
     }
+
+    fn lexit(&mut self, curr_char: char) -> Option<SongPart> {
+        println!("curr_char: {:?}", curr_char);
+        let res = match curr_char{
+            '{' => {
+                println!("jsem v zavorce");
+                let mut directive = String::new();
+                for c in self.stream.by_ref().take_while(|ch| *ch != '}'){
+                    directive.push(c)
+                }
+                Some(SongPart::Directive(directive))
+
+            },
+            _ =>{
+               Some(SongPart::Text(String::from("c")))
+            },
+        };
+        res
+    }
 }
 
 impl<'a> Iterator for Lexer<'a>{
@@ -32,12 +51,10 @@ impl<'a> Iterator for Lexer<'a>{
     fn next(&mut self) -> Option<SongPart>{
         let ch = self.stream.next();
         match ch{
-            Some(character) => Some(SongPart::Text(character.to_string())),
+            Some(character) => self.lexit(character),
             None => None
         }
     }
-
-    //fn lexit(cur_char: char, stream: 
 }
 
 
