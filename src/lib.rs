@@ -1,4 +1,5 @@
 use std::str::Chars;
+use std::iter::Peekable;
 
 #[derive(Debug)]
 pub enum SongPart{
@@ -13,14 +14,14 @@ pub fn lex(song: Chars) -> Lexer {
 }
 #[derive(Debug)]
 pub struct Lexer<'a>{
-    stream: Chars<'a>,
+    stream: Peekable<Chars<'a>>,
     state: SongPart,
 }
 
 impl<'a> Lexer<'a> {
     fn new(stream: Chars) -> Lexer{
         Lexer{
-            stream: stream,
+            stream: stream.peekable(),
             state: SongPart::Empty,
         }
     }
@@ -43,9 +44,17 @@ impl<'a> Lexer<'a> {
                 Some(SongPart::Chord(directive))
 
             },
-            _ =>{
+            other => {
                let mut text = String::new();
-               text.push(curr_char);
+               text.push(other);
+               while let Some(&c) = self.stream.peek(){
+                    match c {
+                        '[' |  '{' => {break}
+                        _ => {
+                            text.push(self.stream.next().unwrap()) // always Some due to peek
+                        }
+                    }
+               }
                Some(SongPart::Text(text))
             },
         };
