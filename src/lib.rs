@@ -26,10 +26,8 @@ impl<'a> Lexer<'a> {
     }
 
     fn lexit(&mut self, curr_char: char) -> Option<SongPart> {
-        println!("curr_char: {:?}", curr_char);
         let res = match curr_char{
             '{' => {
-                println!("jsem v zavorce");
                 let mut directive = String::new();
                 for c in self.stream.by_ref().take_while(|ch| *ch != '}'){
                     directive.push(c)
@@ -37,8 +35,18 @@ impl<'a> Lexer<'a> {
                 Some(SongPart::Directive(directive))
 
             },
+            '[' => {
+                let mut directive = String::new();
+                for c in self.stream.by_ref().take_while(|ch| *ch != ']'){
+                    directive.push(c)
+                }
+                Some(SongPart::Chord(directive))
+
+            },
             _ =>{
-               Some(SongPart::Text(String::from("c")))
+               let mut text = String::new();
+               text.push(curr_char);
+               Some(SongPart::Text(text))
             },
         };
         res
