@@ -17,7 +17,7 @@ fn main(){
     let chars = contents.chars();
     let result = lex(chars);
     for a in result{
-        println!("a: {:?}", a);
+        println!("{:?}", a);
     }
 
 //    for ch in chars{
