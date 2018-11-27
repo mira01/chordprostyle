@@ -1,5 +1,6 @@
 use std::str::Chars;
 use std::iter::Peekable;
+use std::iter::Iterator;
 
 #[derive(Debug)]
 pub enum SongPart{
@@ -12,6 +13,7 @@ pub enum SongPart{
 pub fn lex(song: Chars) -> Lexer {
     Lexer::new(song)
 }
+
 #[derive(Debug)]
 pub struct Lexer<'a>{
     stream: Peekable<Chars<'a>>,
@@ -49,7 +51,7 @@ impl<'a> Lexer<'a> {
                text.push(other);
                while let Some(&c) = self.stream.peek(){
                     match c {
-                        '[' |  '{' => {break}
+                        '[' | '{' => {break}
                         _ => {
                             text.push(self.stream.next().unwrap()) // always Some due to peek
                         }
@@ -71,6 +73,44 @@ impl<'a> Iterator for Lexer<'a>{
             Some(character) => self.lexit(character),
             None => None
         }
+    }
+}
+
+pub struct HtmlFormatter<'a>{
+    lexer: Lexer<'a>,
+    stylesheet: &'a str, //TODO: fix injection
+}
+
+impl<'a> HtmlFormatter<'a>{
+    pub fn new(lexer: Lexer<'a>, stylesheet: &'a str) -> HtmlFormatter<'a>{
+        HtmlFormatter{
+            lexer: lexer,
+            stylesheet: stylesheet,
+        }
+    }
+    pub fn format(self) -> String{
+        let mut output = String::new();
+        output.push_str(&String::from("<html><body>"));
+        for part in self.lexer{
+            match part{
+                SongPart::Text(text) => {
+                    output.push_str(&text);
+                },
+                SongPart::Directive(text) => {
+                    output.push_str(&String::from("<h2>"));
+                    output.push_str(&text);
+                    output.push_str(&String::from("</h2>"));
+                },
+                SongPart::Chord(text) => {
+                    output.push_str(&String::from("<span><strong>"));
+                    output.push_str(&text);
+                    output.push_str(&String::from("</strong></span>"));
+                },
+                _ => (),
+            }
+        }
+        output.push_str(&String::from("</body></html>"));
+        output
     }
 }
 
