@@ -24,7 +24,7 @@ fn main(){
     let chars = contents.chars();
     let result = lex(chars);
     //let formater = PdfFormatter::new(result);
-    let formater = HtmlFormatter::new(result, "");
+    let formater = HtmlFormatter::new(result, "styl.css");
     let res = formater.format();
     println!("{}", res);
 
