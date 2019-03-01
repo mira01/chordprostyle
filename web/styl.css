@@ -1,19 +1,28 @@
 body{
        font-family:"Trebuchet MS";
        column-count: 2;
-    
+       position:absolute;
 }
 div.sakordy{
      line-height: 2.1em;
 }
 
 .ref{
-    font-width: bold;
+    line-height: 2.1em; /* jen pro zatim*/
+    border-left: 2px dotted;
+    padding-left: 1em;
 }
-span{
+.comment{
+    border-left: 2px dotted;
+    border-right: 2px dotted;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+span.chord{
     position:absolute;
 }
-strong{
+
+strong.chord{
     position:relative;
     top:-1em;
 }
