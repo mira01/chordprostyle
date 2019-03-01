@@ -13,8 +13,14 @@ use std::io::BufWriter;
 
 
 fn main(){
-    let args: Vec<String> = env::args().collect();
-    let mut f = File::open(&args[1]).unwrap();
+    let args = env::args().skip(1);
+    for path in args{
+        process_file(path);
+    }
+}
+
+fn process_file(path: String){
+    let mut f = File::open(path).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents);
     

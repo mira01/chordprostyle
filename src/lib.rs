@@ -7,10 +7,19 @@ use std::fs::File;
 use std::io::BufWriter;
 
 #[derive(Debug)]
+pub enum DirectiveType{
+    Title(String),
+    NewSong,
+    ChorusStart,
+    ChorusEnd,
+    Comment(String),
+    Other(String),
+}
+#[derive(Debug)]
 pub enum SongPart{
     Text(String),
     Chord(String),
-    Directive(String),
+    Directive(DirectiveType),
     NewLine,
     Empty,
 }
@@ -40,7 +49,7 @@ impl<'a> Lexer<'a> {
                 for c in self.stream.by_ref().take_while(|ch| *ch != '}'){
                     directive.push(c)
                 }
-                Some(SongPart::Directive(directive))
+                Some(self.lex_directive(&directive))
 
             },
             '[' => {
@@ -69,6 +78,29 @@ impl<'a> Lexer<'a> {
         };
         res
     }
+
+    fn lex_directive(&mut self, directive: &str) -> SongPart{
+       let parts: Vec<&str> = directive.split(':').collect();
+       let (dir_type, value): (String, String) = if parts.len() > 1{
+           (parts[0].to_string(), parts[1..].join(""))
+       }else{
+           (parts[0..].join(""), "".into())
+       };
+       match dir_type.as_ref(){
+            "soc" => println!("{:?} funguje", dir_type),
+            _ => println!("{:?} blbe", dir_type),
+       }
+       let directive_type = match (dir_type.as_ref(), value) {
+            ("ns", value) | ("new_song", value) => DirectiveType::NewSong,
+            ("t", value) | ("title", value) => DirectiveType::Title(value.into()),
+            ("soc", value) | ("start_of_chorus", value) => DirectiveType::ChorusStart,
+            ("eoc", value) | ("end_of_chorus", value) => DirectiveType::ChorusEnd,
+            ("c", value) | ("comment", value) => DirectiveType::Comment(value.into()),
+            (t, value) => DirectiveType::Other(t.to_string()),
+       };
+       SongPart::Directive(directive_type)
+    }
+
 }
 
 impl<'a> Iterator for Lexer<'a>{
@@ -158,17 +190,22 @@ impl<'a> HtmlFormatter<'a>{
         for part in self.lexer{
             match part{
                 SongPart::Text(text) => {
-                    output.push_str(&text);
+                    output.push_str(&format!("{}", &text));
                 },
-                SongPart::Directive(text) => {
-                    output.push_str(&String::from("<h2>"));
-                    output.push_str(&text);
-                    output.push_str(&String::from("</h2>"));
+                SongPart::Directive(DirectiveType::Title(value))=> {
+                    output.push_str(&format!("<h2>{}</h2>", &value));
+                },
+                SongPart::Directive(DirectiveType::ChorusStart)=> {
+                    output.push_str(&format!("<div class='ref'>"));
+                },
+                SongPart::Directive(DirectiveType::ChorusEnd)=> {
+                    output.push_str(&format!("</div>"));
+                },
+                SongPart::Directive(value) => {
+                    output.push_str(&String::from(format!("<div class='directive {:?}'>{:?}</div>", value, value)));
                 },
                 SongPart::Chord(text) => {
-                    output.push_str(&String::from("<span><strong>"));
-                    output.push_str(&text);
-                    output.push_str(&String::from("</strong></span>"));
+                    output.push_str(&format!("<span><strong>{}</span></strong>", text));
                 },
                 SongPart::NewLine =>{
                     output.push_str(&String::from("<br/>"));
