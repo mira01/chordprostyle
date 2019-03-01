@@ -154,7 +154,7 @@ impl<'a> HtmlFormatter<'a>{
     }
     pub fn format(self) -> String{
         let mut output = String::new();
-        output.push_str(&String::from("<html><body style='line-height: 2em'>"));
+        output.push_str(&String::from(format!("<html><head><link rel='stylesheet' href='{}'></head><body>", self.stylesheet)));
         for part in self.lexer{
             match part{
                 SongPart::Text(text) => {
@@ -166,7 +166,7 @@ impl<'a> HtmlFormatter<'a>{
                     output.push_str(&String::from("</h2>"));
                 },
                 SongPart::Chord(text) => {
-                    output.push_str(&String::from("<span style='position: absolute'><strong style='position:relative; top: -1em'>"));
+                    output.push_str(&String::from("<span><strong>"));
                     output.push_str(&text);
                     output.push_str(&String::from("</strong></span>"));
                 },

@@ -1,0 +1,26 @@
+body{
+       font-family:"Trebuchet MS";
+       column-count: 2;
+    
+}
+div.sakordy{
+     line-height: 2.1em;
+}
+
+.ref{
+    font-width: bold;
+}
+span{
+    position:absolute;
+}
+strong{
+    position:relative;
+    top:-1em;
+}
+h2{
+    text-decoration: underline;
+}
+page[size="A4"] {  
+  width: 21cm;
+  height: 29.7cm; 
+}
