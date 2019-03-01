@@ -86,10 +86,6 @@ impl<'a> Lexer<'a> {
        }else{
            (parts[0..].join(""), "".into())
        };
-       match dir_type.as_ref(){
-            "soc" => println!("{:?} funguje", dir_type),
-            _ => println!("{:?} blbe", dir_type),
-       }
        let directive_type = match (dir_type.as_ref(), value) {
             ("ns", value) | ("new_song", value) => DirectiveType::NewSong,
             ("t", value) | ("title", value) => DirectiveType::Title(value.into()),
@@ -201,11 +197,14 @@ impl<'a> HtmlFormatter<'a>{
                 SongPart::Directive(DirectiveType::ChorusEnd)=> {
                     output.push_str(&format!("</div>"));
                 },
+                SongPart::Directive(DirectiveType::Comment(value))=> {
+                    output.push_str(&format!("<span class='comment'>{}</span>", value));
+                },
                 SongPart::Directive(value) => {
                     output.push_str(&String::from(format!("<div class='directive {:?}'>{:?}</div>", value, value)));
                 },
                 SongPart::Chord(text) => {
-                    output.push_str(&format!("<span><strong>{}</span></strong>", text));
+                    output.push_str(&format!("<span class='chord'><strong class='chord'>{}</span></strong>", text));
                 },
                 SongPart::NewLine =>{
                     output.push_str(&String::from("<br/>"));
