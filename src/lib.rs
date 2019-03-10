@@ -114,6 +114,107 @@ impl<'a> Iterator for Lexer<'a>{
     }
 }
 
+pub struct Parser<'a>{
+    lexer: Lexer<'a>,
+}
+
+impl<'a> Parser<'a>{
+    pub fn new(lexer: Lexer<'a>) -> Parser<'a>{
+        Parser{lexer: lexer,}
+    }
+    pub fn parse(self) -> (){
+        let mut title = "placeholder".into();
+
+        let mut song_parts = vec![];
+        for token in self.lexer{
+            match token {
+                SongPart::Directive(DirectiveType::Title(song_title)) => {
+                    println!("{:?}", song_title);
+                    title = song_title
+                },
+                sp => {
+                    println!("{:?}", sp);
+                    song_parts.push(sp)
+                },
+            };
+        }
+        let line = Line{has_chords: true, song_parts: song_parts};
+        let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
+        let song = Song{title: &title, verses: vec![verse]};
+        println!("song: {:?}", song);
+    }
+}
+
+#[derive(Debug)]
+pub struct Song<'a>{
+    title: &'a str,
+    verses: Vec<Verse>,
+}
+#[derive(Debug)]
+pub struct Verse{
+    verse_type: VerseType,
+    lines: Vec<Line>,
+}
+#[derive(Debug)]
+pub enum VerseType{
+    Common,
+    Refrain,
+}
+#[derive(Debug)]
+pub struct Line{
+    has_chords: bool,
+    song_parts: Vec<SongPart>,
+}
+
+pub struct HtmlFormatter<'a>{
+    lexer: Lexer<'a>,
+    stylesheet: &'a str, //TODO: fix injection
+}
+
+impl<'a> HtmlFormatter<'a>{
+    pub fn new(lexer: Lexer<'a>, stylesheet: &'a str) -> HtmlFormatter<'a>{
+        HtmlFormatter{
+            lexer: lexer,
+            stylesheet: stylesheet,
+        }
+    }
+    pub fn format(self) -> String{
+        let mut output = String::new();
+        output.push_str(&String::from(format!("<div class='song'>")));
+        for part in self.lexer{
+            match part{
+                SongPart::Text(text) => {
+                    output.push_str(&format!("{}", &text));
+                },
+                SongPart::Directive(DirectiveType::Title(value))=> {
+                    output.push_str(&format!("<h2>{}</h2>", &value));
+                },
+                SongPart::Directive(DirectiveType::ChorusStart)=> {
+                    output.push_str(&format!("<div class='ref'>"));
+                },
+                SongPart::Directive(DirectiveType::ChorusEnd)=> {
+                    output.push_str(&format!("</div>"));
+                },
+                SongPart::Directive(DirectiveType::Comment(value))=> {
+                    output.push_str(&format!("<span class='comment'>{}</span>", value));
+                },
+                SongPart::Directive(value) => {
+                    output.push_str(&String::from(format!("<div class='directive {:?}'>{:?}</div>", value, value)));
+                },
+                SongPart::Chord(text) => {
+                    output.push_str(&format!("<span class='chord'><strong class='chord'>{}</span></strong>", text));
+                },
+                SongPart::NewLine =>{
+                    output.push_str(&String::from("<br/>"));
+                },
+                _ => (),
+            }
+        }
+        output.push_str(&String::from("</div>"));
+        output
+    }
+}
+
 pub struct PdfFormatter<'a>{
     lexer: Lexer<'a>
 }
@@ -128,7 +229,7 @@ impl<'a> PdfFormatter<'a>{
         let current_layer = doc.get_page(page1).get_layer(layer1);
 
         let text = "Lorem ipsum";
-        let text2 = "unicode: стуфхfцчшщъыьэюя";
+        let text2 = "unicode: příliš žluťoučký kůň úpěl ďábelské ódy";
 
         let font2 = doc.add_external_font(File::open("/System/Library/Fonts/Palatino.ttc").unwrap()).unwrap();
 
@@ -168,55 +269,6 @@ impl<'a> PdfFormatter<'a>{
     //    println!("{:?}", a);
     //}
 
-    }
-}
-
-pub struct HtmlFormatter<'a>{
-    lexer: Lexer<'a>,
-    stylesheet: &'a str, //TODO: fix injection
-}
-
-impl<'a> HtmlFormatter<'a>{
-    pub fn new(lexer: Lexer<'a>, stylesheet: &'a str) -> HtmlFormatter<'a>{
-        HtmlFormatter{
-            lexer: lexer,
-            stylesheet: stylesheet,
-        }
-    }
-    pub fn format(self) -> String{
-        let mut output = String::new();
-        output.push_str(&String::from(format!("<html><head><link rel='stylesheet' href='{}'></head><body>", self.stylesheet)));
-        for part in self.lexer{
-            match part{
-                SongPart::Text(text) => {
-                    output.push_str(&format!("{}", &text));
-                },
-                SongPart::Directive(DirectiveType::Title(value))=> {
-                    output.push_str(&format!("<h2>{}</h2>", &value));
-                },
-                SongPart::Directive(DirectiveType::ChorusStart)=> {
-                    output.push_str(&format!("<div class='ref'>"));
-                },
-                SongPart::Directive(DirectiveType::ChorusEnd)=> {
-                    output.push_str(&format!("</div>"));
-                },
-                SongPart::Directive(DirectiveType::Comment(value))=> {
-                    output.push_str(&format!("<span class='comment'>{}</span>", value));
-                },
-                SongPart::Directive(value) => {
-                    output.push_str(&String::from(format!("<div class='directive {:?}'>{:?}</div>", value, value)));
-                },
-                SongPart::Chord(text) => {
-                    output.push_str(&format!("<span class='chord'><strong class='chord'>{}</span></strong>", text));
-                },
-                SongPart::NewLine =>{
-                    output.push_str(&String::from("<br/>"));
-                },
-                _ => (),
-            }
-        }
-        output.push_str(&String::from("</body></html>"));
-        output
     }
 }
 
