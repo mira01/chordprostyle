@@ -27,6 +27,9 @@ pub enum SongPart{
 pub fn lex(song: Chars) -> Lexer {
     Lexer::new(song)
 }
+pub fn parse(lexer: Lexer) -> Parser {
+    Parser::new(lexer)
+}
 
 #[derive(Debug)]
 pub struct Lexer<'a>{
