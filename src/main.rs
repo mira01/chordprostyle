@@ -31,7 +31,7 @@ fn process_file(path: String){
 
     let chars = contents.chars();
     let result = lex(chars);
-    let parser = parse(result);
+    let mut parser = parse(result);
     parser.parse();
     //let formater = PdfFormatter::new(result);
     //let formater = HtmlFormatter::new(result, "styl.css");
