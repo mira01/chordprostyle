@@ -120,40 +120,84 @@ pub struct Parser<'a>{
 
 impl<'a> Parser<'a>{
     pub fn new(lexer: Lexer<'a>) -> Parser<'a>{
-        Parser{lexer: lexer,}
+        Parser{lexer: lexer}
     }
-    pub fn parse(self) -> (){
-        let mut title = "placeholder".into();
+    pub fn parse(&mut self) -> (){
+        let mut lexer = &mut self.lexer;
+        let song_title: &str;
+
+       let result = String::new();
+       //let wtf = Parser::get_title(lexer, result);
+       let wtf = match Parser::get_title(lexer, result) {
+           None => {
+               eprintln!("pisnicka nema title");
+               String::from("")
+            }
+           Some(a) => a
+        };
+       println!("wtf: {:?}", wtf);
+
+
 
         let mut song_parts = vec![];
-        for token in self.lexer{
-            match token {
-                SongPart::Directive(DirectiveType::Title(song_title)) => {
-                    println!("{:?}", song_title);
-                    title = song_title
-                },
-                sp => {
-                    println!("{:?}", sp);
-                    song_parts.push(sp)
-                },
-            };
-        }
         let line = Line{has_chords: true, song_parts: song_parts};
         let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
-        let song = Song{title: &title, verses: vec![verse]};
+        let mut song = Song{title: &wtf, verses: vec![verse]};
+
         println!("song: {:?}", song);
+    }
+
+    fn get_title<'b>(lexer: &mut Lexer<'a>, mut result: String) -> Option<String>{
+        let mut l2 = lexer.peekable();
+        //let mut a = Some(SongPart::Directive(DirectiveType::NewSong));
+        let mut a = None;
+        let mut found = false;
+        while {
+            if let Some(val) = l2.peek() {
+                println!("val: {:?}", val);
+                match val {
+                    SongPart::Chord(_) | SongPart::Directive(DirectiveType::Comment(_)) | SongPart::Text(_) => {
+                       true
+                    },
+                    SongPart::Directive(DirectiveType::Title(title)) => {
+                        println!("title: {:?}", title);
+                        found = true;
+                        false
+                    }
+                    _ =>{
+                        true
+                    }
+                }
+            } else {
+                false
+            }
+        } && !found
+        {
+            a = l2.next();
+        };
+        if found {
+            a = l2.next();
+        }
+        println!("a: {:?}", a);
+        match a {
+            Some(SongPart::Directive(DirectiveType::Title(title))) => {
+                result.push_str(&title);
+                Some(result)
+            },
+            _ => None
+        }
     }
 }
 
 #[derive(Debug)]
 pub struct Song<'a>{
-    title: &'a str,
-    verses: Vec<Verse>,
+    pub title: &'a str,
+    pub verses: Vec<Verse>,
 }
 #[derive(Debug)]
 pub struct Verse{
-    verse_type: VerseType,
-    lines: Vec<Line>,
+    pub verse_type: VerseType,
+    pub lines: Vec<Line>,
 }
 #[derive(Debug)]
 pub enum VerseType{
@@ -162,8 +206,8 @@ pub enum VerseType{
 }
 #[derive(Debug)]
 pub struct Line{
-    has_chords: bool,
-    song_parts: Vec<SongPart>,
+    pub has_chords: bool,
+    pub song_parts: Vec<SongPart>,
 }
 
 pub struct HtmlFormatter<'a>{
