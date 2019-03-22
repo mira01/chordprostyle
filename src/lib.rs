@@ -124,12 +124,16 @@ impl<'a> Parser<'a>{
     }
     pub fn parse(&mut self) -> (){
         let mut lexer = &mut self.lexer;
+        let song_title: &str;
 
-        let title = Parser::get_title(lexer);
+        let title = if let Some(SongPart::Directive(DirectiveType::Title(title))) = Parser::get_title(lexer){
+           title
+        } else {
+            eprint!("hodne spatne ziskanej titulek pisnicky");
+            "".into()
+        };
         println!("title: {:?}", title);
 
-
-        let mut title = "";
         let mut song_parts = vec![];
         let line = Line{has_chords: true, song_parts: song_parts};
         let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
