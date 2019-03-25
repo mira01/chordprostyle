@@ -126,62 +126,66 @@ impl<'a> Parser<'a>{
         let mut lexer = &mut self.lexer;
         let song_title: &str;
 
-       // let title = if let Some(SongPart::Directive(DirectiveType::Title(title))) = Parser::get_title(lexer){
-       //    title
-       // } else {
-       //     eprint!("hodne spatne ziskanej titulek pisnicky");
-       //     "".into()
-       // };
-       // println!("title: {:?}", title);
-        Parser::get_title(lexer);
+       let result = String::new();
+       //let wtf = Parser::get_title(lexer, result);
+       let wtf = match Parser::get_title(lexer, result) {
+           None => {
+               eprintln!("pisnicka nema title");
+               String::from("")
+            }
+           Some(a) => a
+        };
+       println!("wtf: {:?}", wtf);
 
-        let title = "";
+
+
         let mut song_parts = vec![];
         let line = Line{has_chords: true, song_parts: song_parts};
         let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
-        let mut song = Song{title: &title, verses: vec![verse]};
+        let mut song = Song{title: &wtf, verses: vec![verse]};
 
         println!("song: {:?}", song);
     }
 
-    fn get_title(lexer: &mut Lexer<'a>) -> (){// Option<SongPart>{
+    fn get_title<'b>(lexer: &mut Lexer<'a>, mut result: String) -> Option<String>{
         let mut l2 = lexer.peekable();
-        let predicate = |_|{true};
-        let mut a = Some(SongPart::Directive(DirectiveType::NewSong));
+        //let mut a = Some(SongPart::Directive(DirectiveType::NewSong));
+        let mut a = None;
+        let mut found = false;
         while {
             if let Some(val) = l2.peek() {
+                println!("val: {:?}", val);
                 match val {
-                    _ => println!("val: {:?}", val)
-                };
-                predicate(val)
+                    SongPart::Chord(_) | SongPart::Directive(DirectiveType::Comment(_)) | SongPart::Text(_) => {
+                       true
+                    },
+                    SongPart::Directive(DirectiveType::Title(title)) => {
+                        println!("title: {:?}", title);
+                        found = true;
+                        false
+                    }
+                    _ =>{
+                        true
+                    }
+                }
             } else {
                 false
             }
-        }
+        } && !found
         {
             a = l2.next();
         };
+        if found {
+            a = l2.next();
+        }
         println!("a: {:?}", a);
-        //let result = loop{
-        //    let token = l2.peek();
-        //    if token.is_some(){
-        //        match Some(token) {
-        //            SongPart::Chord(_) | SongPart::Directive(DirectiveType::Comment(_)) | SongPart::Text(_) => {
-        //                return None
-        //            },
-        //            SongPart::Directive(DirectiveType::Title(title)) => {
-        //                println!("title: {:?}", title);
-        //                return Some(SongPart::Directive(DirectiveType::Title(title)))
-        //            }
-        //            _ =>{
-        //                l2.next();
-        //            }
-        //        };
-        //    }
-        //    else{
-        //        continue
-        //    }
-        //};
+        match a {
+            Some(SongPart::Directive(DirectiveType::Title(title))) => {
+                result.push_str(&title);
+                Some(result)
+            },
+            _ => None
+        }
     }
 }
 
