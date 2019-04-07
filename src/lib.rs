@@ -152,10 +152,12 @@ impl<'a> Parser<'a>{
         let mut l2 = lexer.skip_while(|x|{!is_interesting(x)}).into_iter();
 
         //let mut song_parts = l2.into_iter().collect();
-        let mut song_parts = Vec::<SongPart>::new();
-        Parser::get_verse(&mut l2);
-        let line = Line{has_chords: true, song_parts: song_parts};
-        let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
+        let verse = Parser::get_verse(&mut l2);
+        let verse2 = Parser::get_verse(&mut l2);
+        let verse3 = Parser::get_verse(&mut l2);
+        println!("verse1: {:?}\n", verse);
+        println!("verse2: {:?}\n", verse2);
+        println!("verse3: {:?}", verse3);
         vec![verse]
     }
 
@@ -165,15 +167,17 @@ impl<'a> Parser<'a>{
         let mut song_parts = Vec::<SongPart>::new();
         let verse_type = {
             let lookin = l3.peek();
-            println!("lookin: {:?}", lookin);
             match lookin{
                 Some(SongPart::Directive(DirectiveType::ChorusStart)) => VerseType::Chorus,
                 _ => VerseType::Common,
             }
         };
-        let line = Parser::get_line(&mut l3, &verse_type);
-        println!("line: {:?}", line);
-        Verse{verse_type: verse_type, lines: vec![line.unwrap()]}
+        let mut lines = Vec::<Line>::new();
+        while let Some(line) = Parser::get_line(&mut l3, &verse_type){
+            println!("line: {:?}", line);
+            lines.push(line);
+        }
+        Verse{verse_type: verse_type, lines: lines}
     }
 
     fn get_line(lexer: &mut Iterator<Item = SongPart>, verse_type: &VerseType) -> Option<Line>{
@@ -190,21 +194,28 @@ impl<'a> Parser<'a>{
                 },
                 Some(SongPart::Directive(DirectiveType::ChorusStart)) => false,
                 Some(SongPart::Directive(DirectiveType::ChorusEnd)) => true,
+                None => true,
                 _ => false,
             }
         };
-        let mut has_chords = false;
-        let mut line = Vec::<SongPart>::new();
-        while {!termination(l2.peek(), &mut skip_new_lines)}{
-           let token = l2.next().unwrap();
-           println!("token: {:?}", token);
-           match token {
-                SongPart::Chord(_) => has_chords = true,
-                _ => (),
-           }
-           line.push(token);
-        }
-        Some(Line{has_chords, song_parts: line})
+        match (l2.peek(), skip_new_lines<=0) {
+            (Some(SongPart::NewLine), true) => {l2.next(); None},
+            (Some(SongPart::Directive(DirectiveType::ChorusEnd)), _) => {l2.next(); None},
+            (None, _) => None,
+            _ => {
+                 let mut has_chords = false;
+                 let mut line = Vec::<SongPart>::new();
+                 while {!termination(l2.peek(), &mut skip_new_lines)}{
+                    let token = l2.next().unwrap();
+                    match token {
+                         SongPart::Chord(_) => has_chords = true,
+                         _ => (),
+                    }
+                    line.push(token);
+                 }
+                 Some(Line{has_chords, song_parts: line})
+            }
+       }
     }
 
     fn get_title<'b>(lexer: &mut Lexer<'a>, mut result: String) -> Option<String>{
