@@ -282,7 +282,7 @@ impl<'a> HtmlFormatter<'a>{
     }
     pub fn format(self) -> String{
         let mut output = String::new();
-        output.push_str(&String::from(format!("<div class='song'>")));
+        output.push_str(&String::from(format!("\n\n<div class='song'>")));
         for part in self.lexer{
             match part{
                 SongPart::Text(text) => {
@@ -307,7 +307,7 @@ impl<'a> HtmlFormatter<'a>{
                     output.push_str(&format!("<span class='chord'><strong class='chord'>{}</span></strong>", text));
                 },
                 SongPart::NewLine =>{
-                    output.push_str(&String::from("<br/>"));
+                    output.push_str(&String::from("\n<br/>"));
                 },
                 _ => (),
             }
