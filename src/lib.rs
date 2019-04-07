@@ -123,28 +123,57 @@ impl<'a> Parser<'a>{
         Parser{lexer: lexer}
     }
     pub fn parse(&mut self) -> (){
-        let mut lexer = &mut self.lexer;
-        let song_title: &str;
+        let buffer = String::new();
+        let song_title = match Parser::get_title(&mut self.lexer, buffer) {
+            None => {
+                eprintln!("pisnicka nema title");
+                String::from("")
+             }
+            Some(a) => a
+         };
+        println!("song_title: {:?}", song_title);
 
-       let result = String::new();
-       //let wtf = Parser::get_title(lexer, result);
-       let wtf = match Parser::get_title(lexer, result) {
-           None => {
-               eprintln!("pisnicka nema title");
-               String::from("")
-            }
-           Some(a) => a
-        };
-       println!("wtf: {:?}", wtf);
-
-
-
-        let mut song_parts = vec![];
-        let line = Line{has_chords: true, song_parts: song_parts};
-        let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
-        let mut song = Song{title: &wtf, verses: vec![verse]};
+        let verses = Parser::get_verses(&mut self.lexer);
+        let mut song = Song{title: &song_title, verses: verses};
 
         println!("song: {:?}", song);
+    }
+
+    fn get_verses(lexer: &mut Lexer<'a>) -> Vec<Verse>{
+        let is_interesting = |x: &SongPart| -> bool{
+            match x {
+                SongPart::Chord(_) => true,
+                SongPart::Text(_) => true,
+                SongPart::Directive(DirectiveType::Comment(_)) => true,
+                SongPart::Directive(DirectiveType::ChorusStart) => true,
+                _ => false
+            }
+        };
+        let mut l2 = lexer.skip_while(|x|{!is_interesting(x)}).into_iter();
+
+        //let mut song_parts = l2.into_iter().collect();
+        let mut song_parts = Vec::<SongPart>::new();
+        Parser::get_verse(&mut l2);
+        let line = Line{has_chords: true, song_parts: song_parts};
+        let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
+        vec![verse]
+    }
+
+    fn get_verse(lexer: &mut Iterator<Item = SongPart>) -> Verse{
+        let mut l3 = lexer.peekable();
+        let mut has_chords = false;
+        let mut song_parts = Vec::<SongPart>::new();
+        let verse_type = {
+            let lookin = l3.peek();
+            println!("lookin: {:?}", lookin);
+            match lookin{
+                Some(SongPart::Directive(DirectiveType::ChorusStart)) => VerseType::Chorus,
+                _ => VerseType::Common,
+            }
+        };
+        let sp = l3.next().unwrap();
+        println!("sp: {:?}", sp);
+        Verse{verse_type: verse_type, lines: vec![Line{has_chords:true, song_parts: vec![sp]}]}
     }
 
     fn get_title<'b>(lexer: &mut Lexer<'a>, mut result: String) -> Option<String>{
@@ -154,13 +183,11 @@ impl<'a> Parser<'a>{
         let mut found = false;
         while {
             if let Some(val) = l2.peek() {
-                println!("val: {:?}", val);
                 match val {
                     SongPart::Chord(_) | SongPart::Directive(DirectiveType::Comment(_)) | SongPart::Text(_) => {
                        true
                     },
                     SongPart::Directive(DirectiveType::Title(title)) => {
-                        println!("title: {:?}", title);
                         found = true;
                         false
                     }
@@ -202,7 +229,7 @@ pub struct Verse{
 #[derive(Debug)]
 pub enum VerseType{
     Common,
-    Refrain,
+    Chorus,
 }
 #[derive(Debug)]
 pub struct Line{
