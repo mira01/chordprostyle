@@ -1,24 +1,16 @@
 extern crate chordprostyle;
-use chordprostyle::{lex, parse};
-use chordprostyle::HtmlFormatter;
-use chordprostyle::PdfFormatter;
+use chordprostyle::lexer::lex;
+use chordprostyle::parser::parse;
 
 use std::io::Read;
 use std::env;
 use std::fs::File;
 
-extern crate printpdf;
-use printpdf::*;
-use std::io::BufWriter;
-
-
 fn main(){
     let args = env::args().skip(1);
-    //println!("<html><head><link rel='stylesheet' href='styl.css'></head><body>");
     for path in args{
         process_file(path);
     }
-    //println!("<div class='footer'>...</div></body></html>");
 }
 
 fn process_file(path: String){
@@ -27,13 +19,22 @@ fn process_file(path: String){
     f.read_to_string(&mut contents);
 
     let chars = contents.chars();
-    let result = lex(chars);
-    let mut parser = parse(result);
-    parser.parse();
+    let lexresult = lex(chars);
+    let lex_only = false;
 
-    //let formater = PdfFormatter::new(result);
-    //let formater = HtmlFormatter::new(result, "styl.css");
-    //let res = formater.format();
-    //println!("{}", res);
+    if lex_only {
+        for token in lexresult{
+            println!("{:?}", token);
+        }
+    }else{
+        let mut parser = parse(lexresult);
+        let res = parser.parse();
 
+        //let formater = PdfFormatter::new(lexresult);
+        //let formater = HtmlFormatter::new(lexresult, "styl.css");
+        
+ //       let formater = ParseFormatter::new(res);
+ //       let res = formater.format();
+ //       println!("{:?}", res);
+    }
 }
