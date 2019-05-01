@@ -1,6 +1,7 @@
 extern crate chordprostyle;
 use chordprostyle::lexer::lex;
-use chordprostyle::parser::parse;
+//use chordprostyle::parser::parse;
+use chordprostyle::tri_parser::parse;
 
 use std::io::Read;
 use std::env;
@@ -35,6 +36,6 @@ fn process_file(path: String){
         
  //       let formater = ParseFormatter::new(res);
  //       let res = formater.format();
- //       println!("{:?}", res);
+        println!("{:?}", res);
     }
 }
