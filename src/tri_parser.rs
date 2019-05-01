@@ -44,6 +44,48 @@ impl<'a> TriParser<'a>{
                 (SongPart::NewLine, SongPart::Directive(DirectiveType::Title(t)), _) => song.title = t,
                 (SongPart::Directive(DirectiveType::Title(t)), _, _) => song.title = t,
 
+                // end of song
+                  //(NewLine, Text, None)
+                  // (NewLine, Chord, None)
+                  // (NewLine, Comment, None)
+
+                (SongPart::Chord(ch), SongPart::Chord(ch2), SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Chord(ch));
+                    line.song_parts.push(SongPart::Chord(ch2));
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+                (SongPart::Chord(ch), SongPart::Text(t), SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Chord(ch));
+                    line.song_parts.push(SongPart::Text(t));
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+
+                (SongPart::Text(t), SongPart::Chord(ch2), SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Text(t));
+                    line.song_parts.push(SongPart::Chord(ch2));
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+
+                (SongPart::Text(t), SongPart::Text(t2), SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Text(t));
+                    line.song_parts.push(SongPart::Text(t2));
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+                (_, _, SongPart::Empty) =>{
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+
+
                 // start of verse TBD
 
                 // end of verse
@@ -115,8 +157,8 @@ impl<'a> TriParser<'a>{
                 _ => (),
             }
         }
-        println!("line: {:?}", line);
-        println!("verse: {:?}", verse);
+        //println!("line: {:?}", line);
+        //println!("verse: {:?}", verse);
         song
     }
 }
@@ -133,6 +175,9 @@ impl<'a> Iterator for TriParser<'a>{
     fn next(&mut self) -> Option<Self::Item>{
         self.one = std::mem::replace(&mut self.two, std::mem::replace(&mut self.three, self.lexer.next()));
         if let None = self.three{
+            self.three = Some(SongPart::Empty)
+        }
+        if let Some(SongPart::Empty) = self.two{
             return None
         }
         Some((self.one.clone(), self.two.clone(), self.three.clone()))
