@@ -38,7 +38,7 @@ impl<'a> TriParser<'a>{
 
         for triplet in self{
             let triplet = unwrap(triplet);
-            println!("{:?}", triplet);
+            //println!("{:?}", triplet);
             match triplet{
                 // get title
                 (SongPart::NewLine, SongPart::Directive(DirectiveType::Title(t)), _) => song.title = t,
