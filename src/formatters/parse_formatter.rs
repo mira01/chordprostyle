@@ -14,11 +14,17 @@ impl ParseFormatter{
     }
     pub fn format(self) -> String{
         let mut output = String::new();
-        output.push_str(&String::from(format!("\nSONG: ")));
-        for verse in &self.song.verses{
-            output.push_str(&String::from(format!("\n=>>{:?}", verse)));
+        output.push_str(&String::from(format!("\n<div class='song'>\n")));
+        for ref verse in &self.song.verses{
+            output.push_str(&String::from(format!("\t<div class='verse'>\n")));
+            {
+                for ref line in &verse.lines{
+                    output.push_str(&String::from(format!("\t\t<p class='line'>{:?}</p>\n", line)));
+                }
+            }
+            output.push_str(&String::from(format!("\t</div>")));
         }
-        output.push_str(&String::from(format!("\n\n<<=")));
+        output.push_str(&String::from(format!("</div>\n")));
         output
     }
 }

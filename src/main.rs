@@ -36,6 +36,6 @@ fn process_file(path: String){
         
         let formater = ParseFormatter::new(res);
         let res = formater.format();
-        println!("{:?}", res);
+        println!("{}", res);
     }
 }
