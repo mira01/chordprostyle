@@ -19,7 +19,11 @@ impl ParseFormatter{
             output.push_str(&String::from(format!("\t<div class='verse'>\n")));
             {
                 for ref line in &verse.lines{
-                    output.push_str(&String::from(format!("\t\t<p class='line'>{:?}</p>\n", line)));
+                    let mut has_chords = "";
+                    if line.has_chords{
+                        has_chords = " has_chords";
+                    }
+                    output.push_str(&String::from(format!("\t\t<p class='line{}'>{:?}</p>\n", has_chords, line)));
                 }
             }
             output.push_str(&String::from(format!("\t</div>")));

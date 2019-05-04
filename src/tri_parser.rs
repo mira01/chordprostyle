@@ -52,6 +52,7 @@ impl<'a> TriParser<'a>{
                 (SongPart::Chord(ch), SongPart::Chord(ch2), SongPart::Empty) =>{
                     line.song_parts.push(SongPart::Chord(ch));
                     line.song_parts.push(SongPart::Chord(ch2));
+                    line.has_chords = true;
                     verse.lines.push(line);
                     song.verses.push(verse);
                     break;
@@ -59,6 +60,7 @@ impl<'a> TriParser<'a>{
                 (SongPart::Chord(ch), SongPart::Text(t), SongPart::Empty) =>{
                     line.song_parts.push(SongPart::Chord(ch));
                     line.song_parts.push(SongPart::Text(t));
+                    line.has_chords = true;
                     verse.lines.push(line);
                     song.verses.push(verse);
                     break;
@@ -67,6 +69,7 @@ impl<'a> TriParser<'a>{
                 (SongPart::Text(t), SongPart::Chord(ch2), SongPart::Empty) =>{
                     line.song_parts.push(SongPart::Text(t));
                     line.song_parts.push(SongPart::Chord(ch2));
+                    line.has_chords = true;
                     verse.lines.push(line);
                     song.verses.push(verse);
                     break;
@@ -104,6 +107,20 @@ impl<'a> TriParser<'a>{
                 },
                 (SongPart::Chord(ch),SongPart::NewLine, SongPart::NewLine) =>{
                     line.song_parts.push(SongPart::Chord(ch));
+                    line.has_chords = true;
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    line = Line{
+                        has_chords:false,
+                        song_parts: vec![],
+                    };
+                    verse = Verse{
+                        verse_type: VerseType::Common,
+                        lines: vec![],
+                    };
+                },
+                (SongPart::Directive(DirectiveType::Comment(c)),SongPart::NewLine, SongPart::NewLine) =>{
+                    line.song_parts.push(SongPart::Directive(DirectiveType::Comment(c)));
                     verse.lines.push(line);
                     song.verses.push(verse);
                     line = Line{
@@ -143,6 +160,7 @@ impl<'a> TriParser<'a>{
                 },
                 (SongPart::Chord(ch),SongPart::NewLine, _) =>{
                     line.song_parts.push(SongPart::Chord(ch));
+                    line.has_chords = true;
                     verse.lines.push(line);
                     line = Line{
                         has_chords:false,
@@ -153,7 +171,10 @@ impl<'a> TriParser<'a>{
 
                 // common
                 (SongPart::Text(t), _, _) => line.song_parts.push(SongPart::Text(t)),
-                (SongPart::Chord(ch), _, _) => line.song_parts.push(SongPart::Chord(ch)),
+                (SongPart::Chord(ch), _, _) => {
+                    line.song_parts.push(SongPart::Chord(ch));
+                    line.has_chords = true;
+                },
                 _ => (),
             }
         }
