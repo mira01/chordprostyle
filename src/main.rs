@@ -11,11 +11,20 @@ use std::fs::File;
 fn main(){
     let args = env::args().skip(1);
     for path in args{
-        process_file(path);
+        match process_file(&path) {
+            Some(song) =>{
+                let formater = ParseFormatter::new(song);
+                let res = formater.format();
+                println!("{}", res);
+            },
+            None =>{
+                println!("song {} error", path);
+            }
+        }
     }
 }
 
-fn process_file(path: String){
+fn process_file(path: &String) -> Option<chordprostyle::model::Song>{ //better be Result
     let mut f = File::open(path).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents);
@@ -27,15 +36,11 @@ fn process_file(path: String){
         for token in lexresult{
             println!("{:?}", token);
         }
+        None
     }else{
         let mut parser = parse(lexresult);
-        let res = parser.parse();
+        let song = parser.parse();
 
-        //let formater = PdfFormatter::new(lexresult);
-        //let formater = HtmlFormatter::new(lexresult, "styl.css");
-        
-        let formater = ParseFormatter::new(res);
-        let res = formater.format();
-        println!("{}", res);
+        Some(song)
     }
 }
