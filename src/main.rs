@@ -9,7 +9,9 @@ use std::env;
 use std::fs::File;
 
 fn main(){
+    
     let args = env::args().skip(1);
+    println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
     for path in args{
         match process_file(&path) {
             Some(song) =>{
@@ -22,6 +24,8 @@ fn main(){
             }
         }
     }
+    println!("</body></html>");
+    
 }
 
 fn process_file(path: &String) -> Option<chordprostyle::model::Song>{ //better be Result
