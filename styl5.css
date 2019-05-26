@@ -1,0 +1,48 @@
+body{
+       font-family:"Trebuchet MS";
+       column-count: 2;
+       position:absolute;
+}
+div.line{
+    /*line-height: 1.2;*/
+}
+div.has_chords{
+     line-height: 2.8;
+     page-break-inside:avoid;
+}
+body{position:absolute  ;
+}
+
+.ref{
+    border-left: 2px dotted;
+    padding-left: 1em;
+    page-break-inside:avoid;
+}
+.verse{ page-break-inside:avoid;
+        margin-bottom:1.5em;
+}
+.song{ page-break-inside:avoid;
+
+}
+.comment{
+    border-left: 2px dotted;
+    border-right: 2px dotted;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+span.chord{
+	position:absolute;
+}	  
+
+strong.chord{
+    position:relative;
+	top:-1em
+}
+
+h2{
+    text-decoration: underline; 
+}
+page[size="A4"] {  
+  width: 21cm;
+  height: 29.7cm; 
+}
