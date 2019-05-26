@@ -23,14 +23,19 @@ impl ParseFormatter{
     pub fn format(self) -> String{
         let mut output = String::new();
         output.push_str(&String::from(
-                format!("\n<div class='song'>\n<p>sirka {}; vyska {};</p>\n\t<h1>{}</h1>\n", &self.song.width(), &self.song.height(), &self.song.title)));
+                format!("\n<div class='song'>\n\t<h1>{}</h1>\n", &self.song.title)));
         for ref verse in &self.song.verses{
+
+
          ////// V
             let chorus = match verse.verse_type{
-                VerseType::Chorus => " chorus",
+                VerseType::Chorus => " ref",
                 _ => "",
             };
         ////// ^
+
+
+
             output.push_str(&String::from(format!("\t<div class='verse {}'>\n", chorus)));
             {
                 for ref line in &verse.lines{

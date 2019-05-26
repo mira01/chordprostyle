@@ -27,8 +27,9 @@ impl<'a> TriParser<'a>{
             verses: vec![],
             title: "mock".to_string()
         };
+        let mut verse_type = VerseType::Common;
         let mut verse = Verse{
-            verse_type: VerseType::Common,
+            verse_type: verse_type,
             lines: vec![],
         };
         let mut line = Line{
@@ -168,6 +169,32 @@ impl<'a> TriParser<'a>{
                     }
                 },
                     //also a comment; maybe chorus borders...
+
+                (SongPart::Directive(DirectiveType::ChorusStart), SongPart::NewLine, SongPart::Text(t)) =>{
+                    line = Line{
+                        has_chords:false,
+                        song_parts: vec![],
+                    };
+                    line.song_parts.push(SongPart::Text(t));
+                    verse = Verse{
+                        verse_type: VerseType::Chorus,
+                        lines: vec![],
+                    };
+                    verse_type = VerseType::Chorus;
+                }
+                (SongPart::Directive(DirectiveType::ChorusStart), SongPart::NewLine, SongPart::Chord(ch)) =>{
+                    verse = Verse{
+                        verse_type: VerseType::Chorus,
+                        lines: vec![],
+                    };
+                    verse_type = VerseType::Chorus;
+                    line = Line{
+                        has_chords:true,
+                        song_parts: vec![],
+                    };
+                    line.song_parts.push(SongPart::Chord(ch));
+                }
+
 
                 // common
                 (SongPart::Text(t), _, _) => line.song_parts.push(SongPart::Text(t)),
