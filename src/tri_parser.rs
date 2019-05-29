@@ -175,7 +175,7 @@ impl<'a> TriParser<'a>{
                         has_chords:false,
                         song_parts: vec![],
                     };
-                    line.song_parts.push(SongPart::Text(t));
+                    //line.song_parts.push(SongPart::Text(t));
                     verse = Verse{
                         verse_type: VerseType::Chorus,
                         lines: vec![],
