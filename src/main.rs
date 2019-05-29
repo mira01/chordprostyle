@@ -12,11 +12,11 @@ fn main(){
     
     let args = env::args().skip(1);
     println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
-    for path in args{
+    for (i, path) in args.enumerate(){
         match process_file(&path) {
             Some(song) =>{
                 let formater = ParseFormatter::new(song);
-                let res = formater.format();
+                let res = formater.format(&(i+1).to_string());
                 println!("{}", res);
             },
             None =>{
