@@ -20,10 +20,10 @@ impl ParseFormatter{
             _ => String::from("XXXXXX"),
         }
     }
-    pub fn format(self) -> String{
+    pub fn format(self, number: &str) -> String{
         let mut output = String::new();
         output.push_str(&String::from(
-                format!("\n<div class='song'>\n\t<h1>{}</h1>\n", &self.song.title)));
+                format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &self.song.title)));
         for ref verse in &self.song.verses{
 
 
