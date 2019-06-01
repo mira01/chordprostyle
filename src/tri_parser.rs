@@ -75,6 +75,21 @@ impl<'a> TriParser<'a>{
                     song.verses.push(verse);
                     break;
                 },
+                
+                (SongPart::Chord(ch), SongPart::NewLine, SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Chord(ch));
+                    line.has_chords = true;
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+
+                (SongPart::Text(t), SongPart::NewLine, SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Text(t));
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
 
                 (SongPart::Text(t), SongPart::Text(t2), SongPart::Empty) =>{
                     line.song_parts.push(SongPart::Text(t));
@@ -83,6 +98,14 @@ impl<'a> TriParser<'a>{
                     song.verses.push(verse);
                     break;
                 },
+
+                (SongPart::Directive(DirectiveType::Comment(c)), SongPart::NewLine, SongPart::Empty) =>{
+                    line.song_parts.push(SongPart::Directive(DirectiveType::Comment(c)));
+                    verse.lines.push(line);
+                    song.verses.push(verse);
+                    break;
+                },
+
                 (_, _, SongPart::Empty) =>{
                     verse.lines.push(line);
                     song.verses.push(verse);
@@ -219,13 +242,15 @@ fn unwrap(triplet: (Option<SongPart>, Option<SongPart>, Option<SongPart>)) -> (S
 
 impl<'a> Iterator for TriParser<'a>{
     type Item = (Option<SongPart>, Option<SongPart>, Option<SongPart>);
-
     fn next(&mut self) -> Option<Self::Item>{
         self.one = std::mem::replace(&mut self.two, std::mem::replace(&mut self.three, self.lexer.next()));
         if let None = self.three{
             self.three = Some(SongPart::Empty)
         }
         if let Some(SongPart::Empty) = self.two{
+            self.two = Some(SongPart::Empty)
+        }
+        if let Some(SongPart::Empty) = self.one{
             return None
         }
         Some((self.one.clone(), self.two.clone(), self.three.clone()))
