@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum SongPart{
     Text(String),
     Chord(String),
@@ -9,7 +9,7 @@ pub enum SongPart{
     Empty,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum DirectiveType{
     Title(String),
     NewSong,
@@ -19,7 +19,7 @@ pub enum DirectiveType{
     Other(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Song{
     pub title: String,
     pub verses: Vec<Verse>,
@@ -37,7 +37,7 @@ impl Size for Song{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Verse{
     pub verse_type: VerseType,
     pub lines: Vec<Line>,
@@ -51,12 +51,13 @@ impl Size for Verse{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum VerseType{
     Common,
     Chorus,
 }
 
+#[derive(PartialEq)]
 pub struct Line{
     pub has_chords: bool,
     pub song_parts: Vec<SongPart>,

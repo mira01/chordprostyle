@@ -93,3 +93,58 @@ impl<'a> Iterator for Lexer<'a>{
         }
     }
 }
+
+#[cfg(test)]
+mod tests{
+    use crate::model::{SongPart, DirectiveType};
+    use super::*;
+
+    #[test]
+    fn test_lex(){
+        let mut contents = String::from("{ns}
+{t: SongTitle}
+[C]v jedne [Am]morske [Dm7]pustine
+ztroskotal parnik v hlubine
+
+{soc}
+[C]ryba roba [Am]ryba roba [Dm]ryba roba [G] cucu
+{eoc}");
+        let chars = contents.chars();
+        let mut lexresult = super::lex(chars);
+        assert_eq!(lexresult.next().unwrap(), SongPart::Directive(DirectiveType::NewSong));
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+
+        assert_eq!(lexresult.next().unwrap(), SongPart::Directive(DirectiveType::Title(" SongTitle".to_string())));
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("C".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("v jedne ".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("Am".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("morske ".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("Dm7".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("pustine".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("ztroskotal parnik v hlubine".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+
+        assert_eq!(lexresult.next().unwrap(), SongPart::Directive(DirectiveType::ChorusStart));
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("C".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("ryba roba ".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("Am".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("ryba roba ".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("Dm".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text("ryba roba ".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Chord("G".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::Text(" cucu".to_string()));
+        assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
+
+        assert_eq!(lexresult.next().unwrap(), SongPart::Directive(DirectiveType::ChorusEnd));
+
+        assert!(lexresult.next().is_none());
+
+    }
+}
