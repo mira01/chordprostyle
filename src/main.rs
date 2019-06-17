@@ -5,14 +5,31 @@ use chordprostyle::tri_parser::parse;
 use chordprostyle::formatters::parse_formatter::ParseFormatter;
 
 use std::io::Read;
+use std::io::BufReader;
+use std::io::BufRead;
 use std::env;
 use std::fs::File;
 
 fn main(){
-    
-    let args = env::args().skip(1);
+    let mut args = env::args().skip(1);
+
+    let switch = args.next().unwrap();
+    let paths : Vec<String> = if switch == "-l"{
+        let f = File::open(args.next().unwrap());
+        let mut file = BufReader::new(f.unwrap());
+        file.lines().map(|l|{l.unwrap().to_string()}).collect()
+    }
+    else if switch == "-f"{
+        args.map(|l| {l.to_string()}).collect()
+    }
+    else {
+        eprintln!("invocation: -l file_with_pathts | -f files");
+        panic!();
+    };
+
+
     println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
-    for (i, path) in args.enumerate(){
+    for (i, path) in paths.iter().enumerate(){
         match process_file(&path) {
             Some(song) =>{
                 let formater = ParseFormatter::new(song);
@@ -20,12 +37,11 @@ fn main(){
                 println!("{}", res);
             },
             None =>{
-                println!("song {} error", path);
+                eprintln!("song {} error", path);
             }
         }
     }
     println!("</body></html>");
-    
 }
 
 fn process_file(path: &String) -> Option<chordprostyle::model::Song>{ //better be Result
