@@ -2,6 +2,7 @@ body{
        font-family:"Trebuchet MS";
        column-count: 2;
        position:absolute;
+       font-size:14pt;
 }
 div.line{
     /*line-height: 1.2;*/
@@ -29,6 +30,7 @@ body{position:absolute  ;
     border-right: 2px dotted;
     padding-left: 1em;
     padding-right: 1em;
+    font-size: 12pt;
 }
 span.chord{
 	position:absolute;
