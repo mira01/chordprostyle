@@ -1,7 +1,8 @@
 [package]
 name = "chordprostyle"
 version = "0.1.0"
-authors = ["Miroslav Čech <miracech@email.cz>"]
+authors = ["Miroslav Cech <miracech@email.cz>"]
 
 [dependencies]
 printpdf = "0.2.8"
+clap = "2.33.0"
