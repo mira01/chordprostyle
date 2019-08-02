@@ -170,8 +170,8 @@ impl<'a> TriParser<'a>{
                 },
 
                 // start of line
-                (SongPart::NewLine, SongPart::Chord(ch), _) => (),
-                (SongPart::NewLine, SongPart::Text(ch), _) => (),
+                (SongPart::NewLine, SongPart::Chord(_ch), _) => (),
+                (SongPart::NewLine, SongPart::Text(_ch), _) => (),
 
                 // end of line
                 (SongPart::Text(t),SongPart::NewLine, _) => {
@@ -193,7 +193,7 @@ impl<'a> TriParser<'a>{
                 },
                     //also a comment; maybe chorus borders...
 
-                (SongPart::Directive(DirectiveType::ChorusStart), SongPart::NewLine, SongPart::Text(t)) =>{
+                (SongPart::Directive(DirectiveType::ChorusStart), SongPart::NewLine, SongPart::Text(_t)) =>{
                     line = Line{
                         has_chords:false,
                         song_parts: vec![],
@@ -203,14 +203,12 @@ impl<'a> TriParser<'a>{
                         verse_type: VerseType::Chorus,
                         lines: vec![],
                     };
-                    verse_type = VerseType::Chorus;
                 }
                 (SongPart::Directive(DirectiveType::ChorusStart), SongPart::NewLine, SongPart::Chord(ch)) =>{
                     verse = Verse{
                         verse_type: VerseType::Chorus,
                         lines: vec![],
                     };
-                    verse_type = VerseType::Chorus;
                     line = Line{
                         has_chords:true,
                         song_parts: vec![],

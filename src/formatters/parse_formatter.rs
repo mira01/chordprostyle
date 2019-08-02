@@ -1,5 +1,4 @@
-use crate::model::{SongPart, DirectiveType, VerseType, Song, Verse, Line, Size};
-use crate::lexer::{Lexer};
+use crate::model::{SongPart, DirectiveType, VerseType, Song};
 use std::fmt;
 
 
@@ -60,7 +59,7 @@ impl fmt::Display for ParseFormatter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<h2>{}</h2>", &self.song.title);
         for verse in &self.song.verses{
-            write!(f, "<div class='sloka'>{:?}</div>", &self.song.verses);
+            write!(f, "<div class='sloka'>{:?}</div>", verse);
         }
         Ok(())
     }
