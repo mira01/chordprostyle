@@ -2,10 +2,6 @@ use crate::model::{SongPart, DirectiveType};
 
 use std::str::Chars;
 use std::iter::Peekable;
-//use std::iter::Iterator;
-//use std::fs::File;
-//use std::io::BufWriter;
-//use std::fmt;
 
 pub fn lex(song : Chars) -> Lexer {
     Lexer::new(song)
@@ -70,16 +66,15 @@ impl<'a> Lexer<'a> {
            (parts[0..].join(""), "".into())
        };
        let directive_type = match (dir_type.as_ref(), value) {
-            ("ns", value) | ("new_song", value) => DirectiveType::NewSong,
+            ("ns", _value) | ("new_song", _value) => DirectiveType::NewSong,
             ("t", value) | ("title", value) => DirectiveType::Title(value.into()),
-            ("soc", value) | ("start_of_chorus", value) => DirectiveType::ChorusStart,
-            ("eoc", value) | ("end_of_chorus", value) => DirectiveType::ChorusEnd,
+            ("soc", _value) | ("start_of_chorus", _value) => DirectiveType::ChorusStart,
+            ("eoc", _value) | ("end_of_chorus", _value) => DirectiveType::ChorusEnd,
             ("c", value) | ("comment", value) => DirectiveType::Comment(value.into()),
-            (t, value) => DirectiveType::Other(t.to_string()),
+            (t, _value) => DirectiveType::Other(t.to_string()),
        };
        SongPart::Directive(directive_type)
     }
-
 }
 
 impl<'a> Iterator for Lexer<'a>{

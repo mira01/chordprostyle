@@ -51,8 +51,6 @@ impl<'a> Parser<'a>{
 
     fn get_verse(lexer: &mut Iterator<Item = SongPart>) -> Option<Verse>{
         let mut l3 = lexer.peekable();
-        let mut has_chords = false;
-        let mut song_parts = Vec::<SongPart>::new();
         match l3.peek(){
             None => return None,
             _ => ()
@@ -122,7 +120,7 @@ impl<'a> Parser<'a>{
                     SongPart::Chord(_) | SongPart::Directive(DirectiveType::Comment(_)) | SongPart::Text(_) => {
                        true
                     },
-                    SongPart::Directive(DirectiveType::Title(title)) => {
+                    SongPart::Directive(DirectiveType::Title(_title)) => {
                         found = true;
                         false
                     }
