@@ -190,17 +190,22 @@ impl<'a> HtmlFormatter<'a>{
         for part in self.lexer{
             match part{
                 SongPart::Text(text) => {
-                    output.push_str(&text);
+                    output.push_str(&format!("{}", &text));
                 },
-                SongPart::Directive(text) => {
-                    output.push_str(&String::from("<h2>"));
-                    output.push_str(&text);
-                    output.push_str(&String::from("</h2>"));
+                SongPart::Directive(DirectiveType::Title(value))=> {
+                    output.push_str(&format!("<h2>{}</h2>", &value));
+                },
+                SongPart::Directive(DirectiveType::ChorusStart)=> {
+                    output.push_str(&format!("<div class='ref'>"));
+                },
+                SongPart::Directive(DirectiveType::ChorusEnd)=> {
+                    output.push_str(&format!("</div>"));
+                },
+                SongPart::Directive(value) => {
+                    output.push_str(&String::from(format!("<div class='directive {:?}'>{:?}</div>", value, value)));
                 },
                 SongPart::Chord(text) => {
-                    output.push_str(&String::from("<span><strong>"));
-                    output.push_str(&text);
-                    output.push_str(&String::from("</strong></span>"));
+                    output.push_str(&format!("<span><strong>{}</span></strong>", text));
                 },
                 SongPart::NewLine =>{
                     output.push_str(&String::from("<br/>"));
