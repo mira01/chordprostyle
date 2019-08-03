@@ -5,8 +5,8 @@ body{
    position:absolute;
 }
 div.song{
-    page-break-inside: avoid;
-    display: table;
+    /**page-break-inside: avoid;
+    display: table;**/
     with: 100%;
     height: 100%;
     counter-increment:song;
