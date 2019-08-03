@@ -229,7 +229,7 @@ impl<'a> PdfFormatter<'a>{
         let current_layer = doc.get_page(page1).get_layer(layer1);
 
         let text = "Lorem ipsum";
-        let text2 = "unicode: стуфхfцчшщъыьэюя";
+        let text2 = "unicode: příliš žluťoučký kůň úpěl ďábelské ódy";
 
         let font2 = doc.add_external_font(File::open("/System/Library/Fonts/Palatino.ttc").unwrap()).unwrap();
 
