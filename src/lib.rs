@@ -152,19 +152,21 @@ impl<'a> Parser<'a>{
         let mut l2 = lexer.skip_while(|x|{!is_interesting(x)}).into_iter();
 
         //let mut song_parts = l2.into_iter().collect();
-        let verse = Parser::get_verse(&mut l2);
-        let verse2 = Parser::get_verse(&mut l2);
-        let verse3 = Parser::get_verse(&mut l2);
-        println!("verse1: {:?}\n", verse);
-        println!("verse2: {:?}\n", verse2);
-        println!("verse3: {:?}", verse3);
-        vec![verse]
+        let mut verses = Vec::<Verse>::new();
+        while let Some(verse) = Parser::get_verse(&mut l2){
+            verses.push(verse);
+        }
+        verses
     }
 
-    fn get_verse(lexer: &mut Iterator<Item = SongPart>) -> Verse{
+    fn get_verse(lexer: &mut Iterator<Item = SongPart>) -> Option<Verse>{
         let mut l3 = lexer.peekable();
         let mut has_chords = false;
         let mut song_parts = Vec::<SongPart>::new();
+        match l3.peek(){
+            None => return None,
+            _ => ()
+        };
         let verse_type = {
             let lookin = l3.peek();
             match lookin{
@@ -173,39 +175,40 @@ impl<'a> Parser<'a>{
             }
         };
         let mut lines = Vec::<Line>::new();
-        while let Some(line) = Parser::get_line(&mut l3, &verse_type){
+        while let Some(line) = Parser::get_line(&mut l3){
             println!("line: {:?}", line);
             lines.push(line);
         }
-        Verse{verse_type: verse_type, lines: lines}
+        Some(Verse{verse_type: verse_type, lines: lines})
     }
 
-    fn get_line(lexer: &mut Iterator<Item = SongPart>, verse_type: &VerseType) -> Option<Line>{
+    fn get_line(lexer: &mut Iterator<Item = SongPart>) -> Option<Line>{
         let mut l2 = lexer.peekable();
-        let mut skip_new_lines = match verse_type{
-            VerseType::Common => 0,
-            VerseType::Chorus => 1,
-        };
-        let termination = |token: Option<&SongPart>, skip_new_lines: &mut i32| -> bool{
+        let termination = |token: Option<&SongPart>| -> bool{
             match token {
-                Some(SongPart::NewLine) =>{
-                    *skip_new_lines -= &1;
-                    skip_new_lines < &mut 0
-                },
+                Some(SongPart::NewLine) => true,
                 Some(SongPart::Directive(DirectiveType::ChorusStart)) => false,
                 Some(SongPart::Directive(DirectiveType::ChorusEnd)) => true,
                 None => true,
                 _ => false,
             }
         };
-        match (l2.peek(), skip_new_lines<=0) {
-            (Some(SongPart::NewLine), true) => {l2.next(); None},
-            (Some(SongPart::Directive(DirectiveType::ChorusEnd)), _) => {l2.next(); None},
-            (None, _) => None,
+        match l2.peek() {
+            Some(SongPart::NewLine) => {
+                let whatisit = l2.next();
+                println!("whatisit: {:?}", whatisit);
+                match l2.peek(){
+                    Some(SongPart::NewLine) => {l2.next(); ()},
+                     _ => ()
+                }
+                None
+            },
+            Some(SongPart::Directive(DirectiveType::ChorusEnd)) => {l2.next(); None},
+            None => None,
             _ => {
                  let mut has_chords = false;
                  let mut line = Vec::<SongPart>::new();
-                 while {!termination(l2.peek(), &mut skip_new_lines)}{
+                 while {!termination(l2.peek())}{
                     let token = l2.next().unwrap();
                     match token {
                          SongPart::Chord(_) => has_chords = true,
