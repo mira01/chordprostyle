@@ -5,3 +5,4 @@ authors = ["Miroslav Čech <miracech@email.cz>"]
 
 [dependencies]
 printpdf = "0.2.8"
+clap = "2.33.0"
