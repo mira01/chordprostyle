@@ -1,5 +1,6 @@
 extern crate chordprostyle;
 use chordprostyle::lex;
+use chordprostyle::HtmlFormatter;
 
 use std::io::Read;
 use std::env;
@@ -11,16 +12,13 @@ fn main(){
     let mut contents = String::new();
     f.read_to_string(&mut contents);
 
-    println!("I got {:?} args: {:?}", args.len()-1, &args[1..]);
-    println!("contents {}", &mut contents);
-
     let chars = contents.chars();
     let result = lex(chars);
-    for a in result{
-        println!("{:?}", a);
-    }
+    let formater = HtmlFormatter::new(result, "");
+    let res = formater.format();
+    println!("{:?}", res);
+    //for a in result{
+    //    println!("{:?}", a);
+    //}
 
-//    for ch in chars{
-//        println!("ch: {:?}", ch);
-//    }
 }
