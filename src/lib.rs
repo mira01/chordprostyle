@@ -11,6 +11,7 @@ pub enum SongPart{
     Text(String),
     Chord(String),
     Directive(String),
+    NewLine,
     Empty,
 }
 
@@ -50,12 +51,14 @@ impl<'a> Lexer<'a> {
                 Some(SongPart::Chord(directive))
 
             },
+            '\n' =>
+                Some(SongPart::NewLine),
             other => {
                let mut text = String::new();
                text.push(other);
                while let Some(&c) = self.stream.peek(){
                     match c {
-                        '[' | '{' => {break}
+                        '[' | '{' | '\n' => {break}
                         _ => {
                             text.push(self.stream.next().unwrap()) // always Some due to peek
                         }
