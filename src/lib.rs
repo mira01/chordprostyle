@@ -13,6 +13,7 @@ pub enum SongPart{
 pub fn lex(song: Chars) -> Lexer {
     Lexer::new(song)
 }
+
 #[derive(Debug)]
 pub struct Lexer<'a>{
     stream: Peekable<Chars<'a>>,
@@ -50,7 +51,7 @@ impl<'a> Lexer<'a> {
                text.push(other);
                while let Some(&c) = self.stream.peek(){
                     match c {
-                        '[' |  '{' => {break}
+                        '[' | '{' => {break}
                         _ => {
                             text.push(self.stream.next().unwrap()) // always Some due to peek
                         }
