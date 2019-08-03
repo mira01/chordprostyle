@@ -114,6 +114,58 @@ impl<'a> Iterator for Lexer<'a>{
     }
 }
 
+pub struct Parser<'a>{
+    lexer: Lexer<'a>,
+}
+
+impl<'a> Parser<'a>{
+    pub fn new(lexer: Lexer<'a>) -> Parser<'a>{
+        Parser{lexer: lexer,}
+    }
+    pub fn parse(self) -> (){
+        let mut title = "placeholder".into();
+
+        let mut song_parts = vec![];
+        for token in self.lexer{
+            match token {
+                SongPart::Directive(DirectiveType::Title(song_title)) => {
+                    println!("{:?}", song_title);
+                    title = song_title
+                },
+                sp => {
+                    println!("{:?}", sp);
+                    song_parts.push(sp)
+                },
+            };
+        }
+        let line = Line{has_chords: true, song_parts: song_parts};
+        let verse = Verse{verse_type: VerseType::Common, lines: vec![line]};
+        let song = Song{title: &title, verses: vec![verse]};
+        println!("song: {:?}", song);
+    }
+}
+
+#[derive(Debug)]
+pub struct Song<'a>{
+    title: &'a str,
+    verses: Vec<Verse>,
+}
+#[derive(Debug)]
+pub struct Verse{
+    verse_type: VerseType,
+    lines: Vec<Line>,
+}
+#[derive(Debug)]
+pub enum VerseType{
+    Common,
+    Refrain,
+}
+#[derive(Debug)]
+pub struct Line{
+    has_chords: bool,
+    song_parts: Vec<SongPart>,
+}
+
 pub struct PdfFormatter<'a>{
     lexer: Lexer<'a>
 }
