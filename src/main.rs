@@ -10,7 +10,7 @@ fn main(){
     let mut f = File::open(&args[1]).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents);
-    
+
     println!("I got {:?} args: {:?}", args.len()-1, &args[1..]);
     println!("contents {}", contents);
 
