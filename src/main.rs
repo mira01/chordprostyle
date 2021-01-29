@@ -1,8 +1,9 @@
 extern crate chordprostyle;
 use chordprostyle::lexer::lex;
-//use chordprostyle::parser::parse;
 use chordprostyle::tri_parser::parse;
 use chordprostyle::formatters::parse_formatter::ParseFormatter;
+
+use clap::{Arg, App};
 
 use std::io::Read;
 use std::io::BufReader;
@@ -11,6 +12,35 @@ use std::env;
 use std::fs::File;
 
 fn main(){
+    let args = App::new("ChordproStyle")
+        .arg(Arg::with_name("files")
+            .takes_value(true)
+            .multiple(true)
+        )
+        .arg(Arg::with_name("file with paths")
+            .short("l")
+            .takes_value(true)
+            .conflicts_with("files")
+        )
+        .get_matches();
+
+    let iter: Box<dyn Iterator<Item=String>>;
+    if let Some(files) = args.values_of("files"){
+        iter = Box::new(files.map(|s| s.to_owned()));
+    } else if let Some(path) = args.value_of("file with paths"){
+           let f = BufReader::new(File::open(path).expect("Could not open file with paths"));
+           iter = Box::new(f.lines().map(|l| l.unwrap()));
+    } else {
+        panic!("no files given")
+    }
+    for i in iter {
+        println!("i: {:?}", i);
+    }
+
+
+}
+
+fn doit(){
     let mut args = env::args().skip(1);
 
     let switch = args.next().unwrap();
