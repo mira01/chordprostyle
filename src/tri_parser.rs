@@ -27,7 +27,7 @@ impl<'a> TriParser<'a>{
             verses: vec![],
             title: "mock".to_string()
         };
-        let mut verse_type = VerseType::Common;
+        let verse_type = VerseType::Common;
         let mut verse = Verse{
             verse_type: verse_type,
             lines: vec![],
@@ -39,7 +39,6 @@ impl<'a> TriParser<'a>{
 
         for triplet in self{
             let triplet = unwrap(triplet);
-            //println!("{:?}", triplet);
             match triplet{
                 // get title
                 (SongPart::NewLine, SongPart::Directive(DirectiveType::Title(t)), _) => song.title = t,

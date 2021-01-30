@@ -57,9 +57,9 @@ impl ParseFormatter{
 }
 impl fmt::Display for ParseFormatter {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<h2>{}</h2>", &self.song.title);
+        write!(f, "<h2>{}</h2>", &self.song.title).unwrap();
         for verse in &self.song.verses{
-            write!(f, "<div class='sloka'>{:?}</div>", verse);
+            write!(f, "<div class='sloka'>{:?}</div>", verse).unwrap();
         }
         Ok(())
     }

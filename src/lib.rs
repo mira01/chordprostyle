@@ -1,12 +1,9 @@
 pub mod lexer;
-pub mod parser;
 pub mod formatters;
 pub mod model;
 pub mod tri_parser;
 
 use std::io::Read;
-use std::io::BufReader;
-use std::io::BufRead;
 use std::fs::File;
 
 use formatters::parse_formatter::ParseFormatter;
@@ -31,7 +28,7 @@ pub fn process_files<T>(paths: T) where T: Iterator<Item=String>{
 fn process_file(path: &String) -> Option<model::Song>{ //better be Result
     let mut f = File::open(path).unwrap();
     let mut contents = String::new();
-    f.read_to_string(&mut contents);
+    f.read_to_string(&mut contents).unwrap();
 
     let chars = contents.chars();
     let lexresult = lexer::lex(chars);

@@ -65,7 +65,7 @@ pub struct Line{
 impl fmt::Debug for Line {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for song_part in &self.song_parts{
-            write!(f, "{:?}", song_part);
+            write!(f, "{:?}", song_part).unwrap();
         }
         Ok(())
     }

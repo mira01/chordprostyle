@@ -1,7 +1,6 @@
 use chordprostyle as lib;
 use clap::{Arg, App};
 
-use std::io::Read;
 use std::io::BufReader;
 use std::io::BufRead;
 use std::fs::File;
