@@ -25,6 +25,7 @@ fn main(){
            let f = BufReader::new(File::open(path).expect("Could not open file with paths"));
            iter = Box::new(f.lines().map(|l| l.unwrap()));
     } else {
+        // TODO: stdin
         panic!("no files given")
     }
 

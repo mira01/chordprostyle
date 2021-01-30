@@ -5,8 +5,29 @@ pub mod tri_parser;
 
 use std::io::Read;
 use std::fs::File;
+use std::str::Chars;
 
 use formatters::parse_formatter::ParseFormatter;
+use model::Song;
+
+pub trait Parser{
+    fn parse(chars: Chars) -> Result<Song, &str>;
+}
+pub trait Formatter{
+    fn pre() -> String;
+    fn format(song: Song, context: Context) -> String;
+    fn post() -> String;
+}
+
+pub struct Context{}
+
+pub fn process_files2<I, P, F>(paths: I, parser: P, formatter: F)
+    where I: Iterator<Item=String>,
+          P: Parser,
+          F: Formatter,
+{
+
+}
 
 pub fn process_files<T>(paths: T) where T: Iterator<Item=String>{
     println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
