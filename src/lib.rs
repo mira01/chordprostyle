@@ -9,14 +9,15 @@ use std::str::Chars;
 
 use formatters::parse_formatter::ParseFormatter;
 use model::Song;
+use crate::lexer::Lexer;
 
 pub trait Parser{
-    fn parse(chars: Chars) -> Result<Song, &str>;
+    fn parse(&mut self, chars: Chars) -> Result<Song, String>;
 }
 pub trait Formatter{
-    fn pre() -> String;
-    fn format(song: Song, context: Context) -> String;
-    fn post() -> String;
+    fn pre(&self, context: Context) -> String;
+    fn format(&self, song: Song, context: Context) -> String;
+    fn post(&self, context: Context) -> String;
 }
 
 pub struct Context{}
@@ -26,44 +27,35 @@ pub fn process_files2<I, P, F>(paths: I, parser: P, formatter: F)
           P: Parser,
           F: Formatter,
 {
+    let context = Context{};
+    println!("{}",formatter.pre(Context{}));
+    println!("{}",formatter.post(Context{}));
 
 }
 
-pub fn process_files<T>(paths: T) where T: Iterator<Item=String>{
-    println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
-    for (i, path) in paths.enumerate(){
-        match process_file(&path) {
-            Some(song) =>{
-                let formater = ParseFormatter::new(song);
-                let res = formater.format(&(i+1).to_string());
-                println!("{}", res);
-            },
-            None =>{
-                eprintln!("song {} error", path);
-            }
-        }
-    }
-    println!("</body></html>");
-}
+//pub fn process_files<T>(paths: T) where T: Iterator<Item=String>{
+//    println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
+//    for (i, path) in paths.enumerate(){
+//        match process_file(&path) {
+//            Some(song) =>{
+//                let formater = ParseFormatter();
+//                let res = formater.format(&(i+1).to_string());
+//                println!("{}", res);
+//            },
+//            None =>{
+//                eprintln!("song {} error", path);
+//            }
+//        }
+//    }
+//    println!("</body></html>");
+//}
 
-fn process_file(path: &String) -> Option<model::Song>{ //better be Result
+fn process_file(path: &String) -> Result<model::Song, String>{ //better be Result
     let mut f = File::open(path).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents).unwrap();
 
     let chars = contents.chars();
-    let lexresult = lexer::lex(chars);
-    let lex_only = false;
-
-    if lex_only {
-        for token in lexresult{
-            println!("{:?}", token);
-        }
-        None
-    }else{
-        let mut parser = tri_parser::parse(lexresult);
-        let song = parser.parse();
-
-        Some(song)
-    }
+    let mut parser = tri_parser::TriParser::new();
+    parser.parse(chars)
 }

@@ -1,4 +1,6 @@
 use chordprostyle as lib;
+use lib::formatters::parse_formatter::ParseFormatter;
+use lib::tri_parser::TriParser;
 use clap::{Arg, App};
 
 use std::io::BufReader;
@@ -29,5 +31,7 @@ fn main(){
         panic!("no files given")
     }
 
-    lib::process_files(iter);
+    let parser = TriParser::new();
+    let formatter = ParseFormatter{};
+    lib::process_files2(iter, parser, formatter);
 }

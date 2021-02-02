@@ -1,16 +1,32 @@
 use crate::model::{SongPart, DirectiveType, VerseType, Song};
-use std::fmt;
+use crate::Context;
+use crate::Formatter;
+use crate::lexer::Lexer;
 
 
-pub struct ParseFormatter{
-    song:Song
-}
-impl ParseFormatter{
-    pub fn new(song: Song) -> ParseFormatter{
-        ParseFormatter{
-            song: song
-        }
+impl Formatter for ParseFormatter{
+    fn pre(&self, _context: Context) -> String{
+    "<html>
+        <head><
+        link rel='stylesheet' href='styl5.css'>
+        <meta charset='utf-8'>
+        </head>
+        <body>".to_string()
     }
+
+    fn format(&self, song: Song, _context: Context) -> String{
+        "OBSAH".to_string()
+    }
+
+    fn post(&self, _context: Context) -> String{
+        "</body></html>".to_string()
+    }
+}
+
+pub struct ParseFormatter();
+
+impl ParseFormatter{
+
     fn format_song_part(part: &SongPart) -> String{
         match part {
             SongPart::Text(t) => t.to_owned(),
@@ -19,11 +35,11 @@ impl ParseFormatter{
             _ => String::from("XXXXXX"),
         }
     }
-    pub fn format(self, number: &str) -> String{
+    pub fn format_XXXXXXX(song: &Song, number: &str) -> String{
         let mut output = String::new();
         output.push_str(&String::from(
-                format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &self.song.title)));
-        for ref verse in &self.song.verses{
+                format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title)));
+        for ref verse in &song.verses{
 
 
          ////// V
@@ -55,12 +71,12 @@ impl ParseFormatter{
         output
     }
 }
-impl fmt::Display for ParseFormatter {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<h2>{}</h2>", &self.song.title).unwrap();
-        for verse in &self.song.verses{
-            write!(f, "<div class='sloka'>{:?}</div>", verse).unwrap();
-        }
-        Ok(())
-    }
-}
+//impl fmt::Display for ParseFormatter {
+//    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//        write!(f, "<h2>{}</h2>", &self.song.title).unwrap();
+//        for verse in &self.song.verses{
+//            write!(f, "<div class='sloka'>{:?}</div>", verse).unwrap();
+//        }
+//        Ok(())
+//    }
+//}

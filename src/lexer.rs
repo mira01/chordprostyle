@@ -3,10 +3,6 @@ use crate::model::{SongPart, DirectiveType};
 use std::str::Chars;
 use std::iter::Peekable;
 
-pub fn lex(song : Chars) -> Lexer {
-    Lexer::new(song)
-}
-
 #[derive(Debug)]
 pub struct Lexer<'a>{
     stream: Peekable<Chars<'a>>,
@@ -14,7 +10,7 @@ pub struct Lexer<'a>{
 }
 
 impl<'a> Lexer<'a> {
-    fn new(stream: Chars) -> Lexer{
+    pub fn new(stream: Chars) -> Lexer{
         Lexer{
             stream: stream.peekable(),
             state: SongPart::Empty,

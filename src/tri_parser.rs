@@ -1,28 +1,33 @@
 use crate::model::{SongPart, DirectiveType, VerseType, Song, Verse, Line,};
 use crate::lexer::{Lexer};
+use crate::Parser;
 
-pub fn parse(lexer: Lexer) -> TriParser {
-    TriParser::new(lexer)
-}
+use std::str::Chars;
 
-pub struct TriParser<'a>{
-    lexer: Lexer<'a>,
+
+pub struct TriParser{
     one: Option<SongPart>,
     two: Option<SongPart>,
     three: Option<SongPart>,
 }
 
-impl<'a> TriParser<'a>{
-    pub fn new(mut lexer: Lexer<'a>) -> TriParser<'a>{
+impl Parser for TriParser {
+    fn parse(&mut self, chars: Chars) -> Result<Song, String>{
+        let mut lexer = Lexer::new(chars);    
+        Ok(self.parse2(&mut lexer))
+    }
+}
+
+impl TriParser {
+    pub fn new() -> TriParser{
         TriParser{
-            one: lexer.next(),
-            two: lexer.next(),
-            three: lexer.next(),
-            lexer: lexer,
+            one: None,
+            two: None,
+            three: None,
         }
     }
 
-    pub fn parse(&mut self) -> Song{
+    pub fn parse2(&mut self, lexer: &mut Lexer) -> Song{
         let mut song = Song{
             verses: vec![],
             title: "mock".to_string()
@@ -37,7 +42,21 @@ impl<'a> TriParser<'a>{
             song_parts: vec![],
         };
 
-        for triplet in self{
+        let mut iter = ||{
+            self.one = std::mem::replace(&mut self.two, std::mem::replace(&mut self.three, lexer.next()));
+            if let None = self.three{
+                self.three = Some(SongPart::Empty)
+            }
+            if let Some(SongPart::Empty) = self.two{
+                self.two = Some(SongPart::Empty)
+            }
+            if let Some(SongPart::Empty) = self.one{
+                return None
+            }
+            Some((self.one.clone(), self.two.clone(), self.three.clone()))
+        };
+
+        while let Some(triplet) = iter(){
             let triplet = unwrap(triplet);
             match triplet{
                 // get title
@@ -234,24 +253,6 @@ impl<'a> TriParser<'a>{
 fn unwrap(triplet: (Option<SongPart>, Option<SongPart>, Option<SongPart>)) -> (SongPart, SongPart, SongPart){
     let (a, b, c) = triplet;
     (a.unwrap(), b.unwrap(), c.unwrap())
-}
-
-
-impl<'a> Iterator for TriParser<'a>{
-    type Item = (Option<SongPart>, Option<SongPart>, Option<SongPart>);
-    fn next(&mut self) -> Option<Self::Item>{
-        self.one = std::mem::replace(&mut self.two, std::mem::replace(&mut self.three, self.lexer.next()));
-        if let None = self.three{
-            self.three = Some(SongPart::Empty)
-        }
-        if let Some(SongPart::Empty) = self.two{
-            self.two = Some(SongPart::Empty)
-        }
-        if let Some(SongPart::Empty) = self.one{
-            return None
-        }
-        Some((self.one.clone(), self.two.clone(), self.three.clone()))
-    }
 }
 
 
