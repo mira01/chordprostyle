@@ -15,40 +15,49 @@ pub trait Parser{
     fn parse(&mut self, chars: Chars) -> Result<Song, String>;
 }
 pub trait Formatter{
-    fn pre(&self, context: Context) -> String;
-    fn format(&self, song: Song, context: Context) -> String;
-    fn post(&self, context: Context) -> String;
+    fn pre(&self, context: &mut Context) -> String;
+    fn format(&self, song: Song, context: &mut Context) -> String;
+    fn post(&self, context: &mut Context) -> String;
 }
 
-pub struct Context{}
+pub struct Context{
+    number: usize,
+}
+impl Context{
+    pub fn new() -> Context{
+        Context{
+            number: 0,
+        }
+    }
+
+    pub fn next_number(&mut self) -> usize{
+        self.number += 1;
+        self.number
+    }
+}
 
 pub fn process_files2<I, P, F>(paths: I, parser: P, formatter: F)
     where I: Iterator<Item=String>,
           P: Parser,
           F: Formatter,
 {
-    let context = Context{};
-    println!("{}",formatter.pre(Context{}));
-    println!("{}",formatter.post(Context{}));
+    let mut context = Context::new();
+    println!("{}",formatter.pre(&mut context));
+    for (i, path) in paths.enumerate(){
+        match process_file(&path) {
+            Ok(song) =>{
+                let res = formatter.format(song, &mut context);
+                println!("{}", res);
+            },
+            Err(_e) =>{
+                eprintln!("song {} error", path);
+            }
+        }
+    }
+
+    println!("{}",formatter.post(&mut context));
 
 }
-
-//pub fn process_files<T>(paths: T) where T: Iterator<Item=String>{
-//    println!("<html><head><link rel='stylesheet' href='styl5.css'><meta charset='utf-8'></head><body>");
-//    for (i, path) in paths.enumerate(){
-//        match process_file(&path) {
-//            Some(song) =>{
-//                let formater = ParseFormatter();
-//                let res = formater.format(&(i+1).to_string());
-//                println!("{}", res);
-//            },
-//            None =>{
-//                eprintln!("song {} error", path);
-//            }
-//        }
-//    }
-//    println!("</body></html>");
-//}
 
 fn process_file(path: &String) -> Result<model::Song, String>{ //better be Result
     let mut f = File::open(path).unwrap();

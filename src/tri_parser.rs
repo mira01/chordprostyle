@@ -4,18 +4,10 @@ use crate::Parser;
 
 use std::str::Chars;
 
-
 pub struct TriParser{
     one: Option<SongPart>,
     two: Option<SongPart>,
     three: Option<SongPart>,
-}
-
-impl Parser for TriParser {
-    fn parse(&mut self, chars: Chars) -> Result<Song, String>{
-        let mut lexer = Lexer::new(chars);    
-        Ok(self.parse2(&mut lexer))
-    }
 }
 
 impl TriParser {
@@ -27,7 +19,14 @@ impl TriParser {
         }
     }
 
-    pub fn parse2(&mut self, lexer: &mut Lexer) -> Song{
+}
+
+impl Parser for TriParser {
+    fn parse(&mut self, chars: Chars) -> Result<Song, String>{
+        let mut lexer = Lexer::new(chars);    
+        self.one = lexer.next();
+        self.two = lexer.next();
+        self.three = lexer.next();
         let mut song = Song{
             verses: vec![],
             title: "mock".to_string()
@@ -244,9 +243,7 @@ impl TriParser {
                 _ => (),
             }
         }
-        //println!("line: {:?}", line);
-        //println!("verse: {:?}", verse);
-        song
+        Ok(song)
     }
 }
 
