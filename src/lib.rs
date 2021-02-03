@@ -18,6 +18,7 @@ pub trait Formatter{
     fn post(&self, context: &mut Context) -> String;
 }
 
+#[derive(Default)]
 pub struct Context{
     number: usize,
 }

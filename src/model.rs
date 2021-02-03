@@ -79,7 +79,7 @@ impl Size for Line{
         len
     }
     fn height(&self) -> usize{
-        if * &self.has_chords{
+        if self.has_chords{
             2
         }else{
             1

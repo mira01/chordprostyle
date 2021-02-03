@@ -15,8 +15,7 @@ impl Formatter for ParseFormatter{
     fn format(&self, song: Song, context: &mut Context) -> String{
         let mut output = String::new();
         let number = context.next_number();
-        output.push_str(&String::from(
-                format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title)));
+        output.push_str(&format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title));
         for ref verse in &song.verses{
 
 
@@ -29,23 +28,23 @@ impl Formatter for ParseFormatter{
 
 
 
-            output.push_str(&String::from(format!("\t<div class='verse {}'>\n", chorus)));
+            output.push_str(&format!("\t<div class='verse {}'>\n", chorus));
             {
                 for ref line in &verse.lines{
                     let mut has_chords = "";
                     if line.has_chords{
                         has_chords = " has_chords";
                     }
-                    output.push_str(&String::from(format!("\t\t<div class='line{}'>", has_chords)));
+                    output.push_str(&format!("\t\t<div class='line{}'>", has_chords));
                     for song_part in &line.song_parts{
-                        output.push_str(&String::from(format!("{}", self.format_song_part(song_part))));
+                        output.push_str(self.format_song_part(song_part).as_str());
                     }
-                    output.push_str(&String::from(format!("</div>\n")));
+                    output.push_str("</div>\n");
                 }
             }
-            output.push_str(&String::from(format!("\t</div>\n")));
+            output.push_str("\t</div>\n");
         }
-        output.push_str(&String::from(format!("</div>\n")));
+        output.push_str("</div>\n");
         output
     }
 
@@ -61,8 +60,8 @@ impl ParseFormatter{
     fn format_song_part(&self, part: &SongPart) -> String{
         match part {
             SongPart::Text(t) => t.to_owned(),
-            SongPart::Chord(t) => String::from(format!("<span class='chord'><strong class='chord'>{}</strong></span>", t.to_owned())),
-            SongPart::Directive(DirectiveType::Comment(t)) => String::from(format!("<span class='comment'>{}</span>", t.to_owned())),
+            SongPart::Chord(t) => format!("<span class='chord'><strong class='chord'>{}</strong></span>", t.to_owned()),
+            SongPart::Directive(DirectiveType::Comment(t)) => format!("<span class='comment'>{}</span>", t.to_owned()),
             _ => String::from("XXXXXX"),
         }
     }

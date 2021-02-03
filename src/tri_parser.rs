@@ -33,7 +33,7 @@ impl Parser for TriParser {
         };
         let verse_type = VerseType::Common;
         let mut verse = Verse{
-            verse_type: verse_type,
+            verse_type,
             lines: vec![],
         };
         let mut line = Line{
@@ -43,7 +43,7 @@ impl Parser for TriParser {
 
         let mut iter = ||{
             self.one = std::mem::replace(&mut self.two, std::mem::replace(&mut self.three, lexer.next()));
-            if let None = self.three{
+            if self.three.is_none(){
                 self.three = Some(SongPart::Empty)
             }
             if let Some(SongPart::Empty) = self.two{

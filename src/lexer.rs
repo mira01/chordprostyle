@@ -63,10 +63,10 @@ impl<'a> Lexer<'a> {
        };
        let directive_type = match (dir_type.as_ref(), value) {
             ("ns", _value) | ("new_song", _value) => DirectiveType::NewSong,
-            ("t", value) | ("title", value) => DirectiveType::Title(value.into()),
+            ("t", value) | ("title", value) => DirectiveType::Title(value),
             ("soc", _value) | ("start_of_chorus", _value) => DirectiveType::ChorusStart,
             ("eoc", _value) | ("end_of_chorus", _value) => DirectiveType::ChorusEnd,
-            ("c", value) | ("comment", value) => DirectiveType::Comment(value.into()),
+            ("c", value) | ("comment", value) => DirectiveType::Comment(value),
             (t, _value) => DirectiveType::Other(t.to_string()),
        };
        SongPart::Directive(directive_type)
