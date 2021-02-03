@@ -24,14 +24,14 @@ fn main(){
     if let Some(files) = args.values_of("files"){
         iter = Box::new(files.map(|s| s.to_owned()));
     } else if let Some(path) = args.value_of("file with paths"){
-           let f = BufReader::new(File::open(path).expect("Could not open file with paths"));
-           iter = Box::new(f.lines().map(|l| l.unwrap()));
+        let f = BufReader::new(File::open(path).expect("Could not open file with paths"));
+        iter = Box::new(f.lines().map(|l| l.unwrap()));
     } else {
         // TODO: stdin
         panic!("no files given")
     }
 
-    let parser = TriParser::new();
+    let mut parser = TriParser::new();
     let formatter = ParseFormatter{};
-    lib::process_files2(iter, parser, formatter);
+    lib::process_files(iter, &mut parser, formatter);
 }

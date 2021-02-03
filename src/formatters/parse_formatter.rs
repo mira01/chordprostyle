@@ -1,9 +1,6 @@
 use crate::model::{SongPart, DirectiveType, VerseType, Song};
 use crate::Context;
 use crate::Formatter;
-use crate::lexer::Lexer;
-
-use std::fmt::Write;
 
 impl Formatter for ParseFormatter{
     fn pre(&self, _context: &mut Context) -> String{

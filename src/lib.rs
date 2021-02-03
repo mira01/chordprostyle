@@ -7,9 +7,7 @@ use std::io::Read;
 use std::fs::File;
 use std::str::Chars;
 
-use formatters::parse_formatter::ParseFormatter;
 use model::Song;
-use crate::lexer::Lexer;
 
 pub trait Parser{
     fn parse(&mut self, chars: Chars) -> Result<Song, String>;
@@ -36,16 +34,16 @@ impl Context{
     }
 }
 
-pub fn process_files2<I, P, F>(paths: I, parser: P, formatter: F)
+pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F)
     where I: Iterator<Item=String>,
           P: Parser,
           F: Formatter,
 {
     let mut context = Context::new();
     println!("{}",formatter.pre(&mut context));
-    for (i, path) in paths.enumerate(){
-        match process_file(&path) {
-            Ok(song) =>{
+    for path in paths{
+        match parse_file(&path, parser) {
+            Ok(song) => {
                 let res = formatter.format(song, &mut context);
                 println!("{}", res);
             },
@@ -59,12 +57,11 @@ pub fn process_files2<I, P, F>(paths: I, parser: P, formatter: F)
 
 }
 
-fn process_file(path: &String) -> Result<model::Song, String>{ //better be Result
+fn parse_file(path: &str, parser: &mut dyn Parser) -> Result<model::Song, String>{
     let mut f = File::open(path).unwrap();
     let mut contents = String::new();
     f.read_to_string(&mut contents).unwrap();
 
     let chars = contents.chars();
-    let mut parser = tri_parser::TriParser::new();
     parser.parse(chars)
 }
