@@ -6,4 +6,8 @@ edition = "2018"
 
 [dependencies]
 clap = "2.33.0"
-#tera = "1.0.0-beta.20"
+serde = {version = "1", features = ["derive"]}
+
+[dependencies.tera]
+version = "1"
+default-features = false

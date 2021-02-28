@@ -1,6 +1,8 @@
 use std::fmt;
+use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(tag = "type", content = "content")]
 #[non_exhaustive]
 pub enum SongPart{
     Text(String),
@@ -10,7 +12,7 @@ pub enum SongPart{
     Empty,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[non_exhaustive]
 pub enum DirectiveType{
     Title(String),
@@ -21,7 +23,7 @@ pub enum DirectiveType{
     Other(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Song{
     pub title: String,
     pub verses: Vec<Verse>,
@@ -39,7 +41,7 @@ impl Size for Song{
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Verse{
     pub verse_type: VerseType,
     pub lines: Vec<Line>,
@@ -53,13 +55,13 @@ impl Size for Verse{
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub enum VerseType{
     Common,
     Chorus,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Serialize)]
 pub struct Line{
     pub has_chords: bool,
     pub song_parts: Vec<SongPart>,

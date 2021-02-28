@@ -1,5 +1,5 @@
 use chordprostyle as lib;
-use lib::formatters::parse_formatter::ParseFormatter;
+use lib::formatters::TeraFormatter;
 use lib::tri_parser::TriParser;
 use clap::{Arg, App};
 
@@ -32,7 +32,7 @@ fn main(){
     }
 
     let mut parser = TriParser::new();
-    let formatter = ParseFormatter{};
+    let formatter = TeraFormatter();
     if let Err(errors) = lib::process_files(iter, &mut parser, formatter){
         eprintln!("{:?}", errors);
     }

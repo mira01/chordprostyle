@@ -5,6 +5,7 @@ pub mod tri_parser;
 
 use std::io;
 use std::fs;
+use std::error;
 use std::str::Chars;
 
 use model::Song;
