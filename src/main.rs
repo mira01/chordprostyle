@@ -33,5 +33,7 @@ fn main(){
 
     let mut parser = TriParser::new();
     let formatter = ParseFormatter{};
-    lib::process_files(iter, &mut parser, formatter);
+    if let Err(errors) = lib::process_files(iter, &mut parser, formatter){
+        eprintln!("{:?}", errors);
+    }
 }

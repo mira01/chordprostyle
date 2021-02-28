@@ -10,7 +10,7 @@ impl<'a> HtmlFormatter<'a>{
             stylesheet: stylesheet,
         }
     }
-    pub fn format(self) -> String{
+    pub fn format(self) -> Result<String, LibError::FormatError>{
         let mut output = String::new();
         output.push_str(&String::from(format!("\n\n<div class='song'>")));
         for part in self.lexer{
@@ -43,7 +43,7 @@ impl<'a> HtmlFormatter<'a>{
             }
         }
         output.push_str(&String::from("</div>"));
-        output
+        Ok(output)
     }
 }
 

@@ -1,6 +1,7 @@
 use crate::model::{SongPart, DirectiveType, VerseType, Song};
 use crate::Context;
 use crate::Formatter;
+use crate::FormatResult;
 
 impl Formatter for ParseFormatter{
     fn pre(&self, _context: &mut Context) -> String{
@@ -12,7 +13,7 @@ impl Formatter for ParseFormatter{
         <body>".to_string()
     }
 
-    fn format(&self, song: Song, context: &mut Context) -> String{
+    fn format(&self, song: Song, context: &mut Context) -> FormatResult{
         let mut output = String::new();
         let number = context.next_number();
         output.push_str(&format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title));
@@ -45,7 +46,7 @@ impl Formatter for ParseFormatter{
             output.push_str("\t</div>\n");
         }
         output.push_str("</div>\n");
-        output
+        Ok(output)
     }
 
     fn post(&self, _context: &mut Context) -> String{

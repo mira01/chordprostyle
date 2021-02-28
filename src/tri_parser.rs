@@ -1,6 +1,7 @@
 use crate::model::{SongPart, DirectiveType, VerseType, Song, Verse, Line,};
 use crate::lexer::{Lexer};
 use crate::Parser;
+use crate::ParseResult;
 
 use std::str::Chars;
 
@@ -22,7 +23,7 @@ impl TriParser {
 }
 
 impl Parser for TriParser {
-    fn parse(&mut self, chars: Chars) -> Result<Song, String>{
+    fn parse(&mut self, chars: Chars) -> ParseResult{
         let mut lexer = Lexer::new(chars);    
         self.one = lexer.next();
         self.two = lexer.next();

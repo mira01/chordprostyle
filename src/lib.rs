@@ -3,18 +3,23 @@ pub mod formatters;
 pub mod model;
 pub mod tri_parser;
 
-use std::io::Read;
-use std::fs::File;
+use std::io;
+use std::fs;
 use std::str::Chars;
 
 use model::Song;
 
+type ParseResult = Result<Song, LibError>;
+
 pub trait Parser{
-    fn parse(&mut self, chars: Chars) -> Result<Song, String>;
+    fn parse(&mut self, chars: Chars) -> ParseResult;
 }
+
+type FormatResult = Result<String, LibError>;
+
 pub trait Formatter{
     fn pre(&self, context: &mut Context) -> String;
-    fn format(&self, song: Song, context: &mut Context) -> String;
+    fn format(&self, song: Song, context: &mut Context) -> FormatResult;
     fn post(&self, context: &mut Context) -> String;
 }
 
@@ -35,34 +40,48 @@ impl Context{
     }
 }
 
-pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F)
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum LibError{
+    IOError(io::Error),
+    ParseError(),
+    FormatError(),
+}
+
+impl From<io::Error> for LibError{
+    fn from(error: io::Error) -> Self{
+        LibError::IOError(error)
+    }
+}
+
+pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F) -> Result<(), Vec<(String, LibError)>>
     where I: Iterator<Item=String>,
           P: Parser,
           F: Formatter,
 {
     let mut context = Context::new();
+    let mut errors = Vec::new();
     println!("{}",formatter.pre(&mut context));
     for path in paths{
-        match parse_file(&path, parser) {
-            Ok(song) => {
-                let res = formatter.format(song, &mut context);
-                println!("{}", res);
-            },
-            Err(_e) =>{
-                eprintln!("song {} error", path);
-            }
+        if let Ok(output) = parse_file(&path, parser)
+            .and_then(|song|{
+                formatter.format(song, &mut context)
+            })
+            .map_err(|e|{errors.push((path, e))})
+        {
+            println!("{}", output);
         }
     }
 
     println!("{}",formatter.post(&mut context));
-
+    match errors.is_empty(){
+        true => Ok(()),
+        false => Err(errors),
+    }
 }
 
-fn parse_file(path: &str, parser: &mut dyn Parser) -> Result<model::Song, String>{
-    let mut f = File::open(path).unwrap();
-    let mut contents = String::new();
-    f.read_to_string(&mut contents).unwrap();
-
+fn parse_file(path: &str, parser: &mut dyn Parser) -> Result<Song, LibError>{
+    let contents = fs::read_to_string(path)?;
     let chars = contents.chars();
     parser.parse(chars)
 }

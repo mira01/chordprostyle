@@ -1,6 +1,7 @@
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum SongPart{
     Text(String),
     Chord(String),
@@ -10,6 +11,7 @@ pub enum SongPart{
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum DirectiveType{
     Title(String),
     NewSong,
