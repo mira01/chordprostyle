@@ -1,11 +1,19 @@
 use tera::Tera;
 use tera::Context as TeraContext;
+use tera::Error as TeraError;
+use std::error::Error;
 
 use crate::model::{SongPart, DirectiveType, VerseType, Song};
 use crate::Context;
 use crate::Formatter;
 use crate::FormatResult;
 use crate::LibError;
+
+impl From<TeraError> for LibError{
+    fn from(e: TeraError) -> LibError{
+        LibError::FormatError(Box::new(e))
+    }
+}
 
 pub struct TeraFormatter{
     template: String,
@@ -37,21 +45,20 @@ impl TeraFormatter{
                </div>
             {%- endfor %}
         </div>
-        {% endblock songs %}
-        {% block footer %}
+        {%- endblock songs -%}
+        {%- block footer -%}
         </body>
         </html>
-        {% endblock footer %}
+        {%- endblock footer %}
         "#.into(),
         }
     }
 
     fn render_template(&self, override_template: &str, tera_context: &TeraContext) -> FormatResult{
         let mut tera = Tera::default();
-        tera.add_raw_template("base", &self.template).expect("cannot add template");
-        tera.add_raw_template("content", override_template).expect("cannot add template");
-        let res = tera.render("content", &tera_context).expect("cannot render");
-
+        tera.add_raw_template("base", &self.template)?;
+        tera.add_raw_template("content", override_template)?;
+        let res = tera.render("content", &tera_context)?;
         Ok(res.into())
     }
 }
