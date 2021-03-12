@@ -13,6 +13,7 @@ pub enum SongPart{
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(tag = "type", content = "content")]
 #[non_exhaustive]
 pub enum DirectiveType{
     Title(String),

@@ -38,6 +38,8 @@ impl TeraFormatter{
                             {%- for part in line.song_parts -%}
                                 {%- if part.type == "Chord" -%}
                                     <span class="chord"><strong>{{part.content}}</strong></span>
+                                {%- elif part.type == "Directive" -%}
+                                    <span class="{{part.content.type}}">{{part.content.content}}</span>
                                 {%- else -%}
                                     {{part.content}}
                                 {%- endif -%}
