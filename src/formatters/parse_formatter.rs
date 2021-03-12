@@ -4,13 +4,13 @@ use crate::Formatter;
 use crate::FormatResult;
 
 impl Formatter for ParseFormatter{
-    fn pre(&self, _context: &mut Context) -> String{
-    "<html>
+    fn pre(&self, _context: &mut Context) -> FormatResult{
+    Ok("<html>
         <head><
         link rel='stylesheet' href='styl5.css'>
         <meta charset='utf-8'>
         </head>
-        <body>".to_string()
+        <body>".to_string())
     }
 
     fn format(&self, song: Song, context: &mut Context) -> FormatResult{
@@ -49,8 +49,8 @@ impl Formatter for ParseFormatter{
         Ok(output)
     }
 
-    fn post(&self, _context: &mut Context) -> String{
-        "</body></html>".to_string()
+    fn post(&self, _context: &mut Context) -> FormatResult{
+        Ok("</body></html>".to_string())
     }
 }
 

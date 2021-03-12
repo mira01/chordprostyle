@@ -32,7 +32,7 @@ fn main(){
     }
 
     let mut parser = TriParser::new();
-    let formatter = TeraFormatter();
+    let formatter = TeraFormatter::new();
     if let Err(errors) = lib::process_files(iter, &mut parser, formatter){
         eprintln!("{:?}", errors);
     }

@@ -7,18 +7,18 @@ use crate::Formatter;
 use crate::FormatResult;
 use crate::LibError;
 
-pub struct TeraFormatter();
+pub struct TeraFormatter{
+    template: String,
+}
 
-impl Formatter for TeraFormatter{
-    fn pre(&self, _context: &mut Context) -> String{
-    "<BEGIN>".to_string()
-    }
-
-    fn format(&self, song: Song, app_context: &mut Context) -> FormatResult{
-        let mut tera = Tera::default();
-        let mut context = TeraContext::new();
-        context.insert("song", &song);
-        let template = r#"
+impl TeraFormatter{
+    pub fn new() -> TeraFormatter{
+        TeraFormatter{
+        template :r#"
+        {% block head %}
+        <!DOCTYPE HTML><html><head><body>
+        {% endblock head %}
+        {% block songs %}
         <div class="song">
             <h1>{{ song.title }}</h1>
             {%- for verse in song.verses %}
@@ -37,14 +37,52 @@ impl Formatter for TeraFormatter{
                </div>
             {%- endfor %}
         </div>
-        "#;
-        tera.add_raw_template("hello.html", template).expect("cannot add template");
-        let res = tera.render("hello.html", &context).expect("cannot render");
+        {% endblock songs %}
+        {% block footer %}
+        </body>
+        </html>
+        {% endblock footer %}
+        "#.into(),
+        }
+    }
+
+    fn render_template(&self, override_template: &str, tera_context: &TeraContext) -> FormatResult{
+        let mut tera = Tera::default();
+        tera.add_raw_template("base", &self.template).expect("cannot add template");
+        tera.add_raw_template("content", override_template).expect("cannot add template");
+        let res = tera.render("content", &tera_context).expect("cannot render");
 
         Ok(res.into())
     }
+}
 
-    fn post(&self, _context: &mut Context) -> String{
-        "<END>".to_string()
+impl Formatter for TeraFormatter{
+
+    fn pre(&self, _context: &mut Context) -> FormatResult{
+        let head_template = r#"{% extends "base" %}
+        {% block head %}{{ super() }}{% endblock head %}
+        {% block footer %}{% endblock footer %}
+        {% block songs %}}{% endblock songs %}"#.into();
+        let context = TeraContext::new();
+        self.render_template(head_template, &context)
+    }
+
+    fn format(&self, song: Song, app_context: &mut Context) -> FormatResult{
+        let songs_template = r#"{% extends "base" %}
+        {% block head %}{% endblock head %}
+        {% block footer %}{% endblock footer %}
+        {% block songs %}{{ super() }}{% endblock songs %}"#.into();
+        let mut context = TeraContext::new();
+        context.insert("song", &song);
+        self.render_template(songs_template, &context)
+    }
+
+    fn post(&self, _context: &mut Context) -> FormatResult{
+        let footer_template = r#"{% extends "base" %}
+        {% block head %}{% endblock head %}
+        {% block footer %}{% endblock footer %}
+        {% block songs %}}{{ super() }}{% endblock songs %}"#.into();
+        let context = TeraContext::new();
+        self.render_template(footer_template, &context)
     }
 }

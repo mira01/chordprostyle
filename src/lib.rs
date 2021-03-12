@@ -5,7 +5,9 @@ pub mod tri_parser;
 
 use std::io;
 use std::fs;
-use std::error;
+use std::error::Error;
+use std::fmt::Display;
+
 use std::str::Chars;
 
 use model::Song;
@@ -19,9 +21,9 @@ pub trait Parser{
 type FormatResult = Result<String, LibError>;
 
 pub trait Formatter{
-    fn pre(&self, context: &mut Context) -> String;
+    fn pre(&self, context: &mut Context) -> FormatResult;
     fn format(&self, song: Song, context: &mut Context) -> FormatResult;
-    fn post(&self, context: &mut Context) -> String;
+    fn post(&self, context: &mut Context) -> FormatResult;
 }
 
 #[derive(Default)]
@@ -46,9 +48,19 @@ impl Context{
 pub enum LibError{
     IOError(io::Error),
     ParseError(),
-    FormatError(),
+    FormatError(Box<dyn Error>),
 }
 
+impl Error for LibError{
+
+}
+
+impl Display for LibError{
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error>{
+        write!(fmt, "{:?}", &self)
+    }
+}
+ 
 impl From<io::Error> for LibError{
     fn from(error: io::Error) -> Self{
         LibError::IOError(error)
@@ -62,7 +74,10 @@ pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F) -> Result<
 {
     let mut context = Context::new();
     let mut errors = Vec::new();
-    println!("{}",formatter.pre(&mut context));
+    match formatter.pre(&mut context){
+        Ok(output) => print!("{}", output),
+        Err(e) => errors.push((".".into(), e)),
+    }
     for path in paths{
         if let Ok(output) = parse_file(&path, parser)
             .and_then(|song|{
@@ -74,7 +89,10 @@ pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F) -> Result<
         }
     }
 
-    println!("{}",formatter.post(&mut context));
+    match formatter.post(&mut context){
+        Ok(output) => print!("{}", output),
+        Err(e) => errors.push((".".into(), e)),
+    }
     match errors.is_empty(){
         true => Ok(()),
         false => Err(errors),
