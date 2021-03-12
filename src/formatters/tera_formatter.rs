@@ -69,6 +69,10 @@ impl TeraFormatter{
 impl Formatter for TeraFormatter{
 
     fn pre(&self, _context: &mut Context) -> FormatResult{
+        // The inheritance and overriding of parts in templates is here to comply with pre, format
+        // and post methods in Formatter trait.
+        // Basicaly I have three parts in base template and in each method of Formatter trait I
+        // hide not wanted parts, keeping only the relevant one.
         let head_template = r#"{%- extends "base" -%}
         {%- block head -%}{{ super() }}{%- endblock head -%}
         {%- block footer -%}{%- endblock footer -%}
