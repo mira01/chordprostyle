@@ -1,9 +1,8 @@
 use tera::Tera;
 use tera::Context as TeraContext;
 use tera::Error as TeraError;
-use std::error::Error;
 
-use crate::model::{SongPart, DirectiveType, VerseType, Song};
+use crate::model::Song;
 use crate::Context;
 use crate::Formatter;
 use crate::FormatResult;
@@ -81,7 +80,7 @@ impl Formatter for TeraFormatter{
         self.render_template(head_template, &context)
     }
 
-    fn format(&self, song: Song, app_context: &mut Context) -> FormatResult{
+    fn format(&self, song: Song, _app_context: &mut Context) -> FormatResult{
         let songs_template = r#"{%- extends "base" -%}
         {%- block head -%}{%- endblock head -%}
         {%- block footer -%}{%- endblock footer -%}
