@@ -23,10 +23,13 @@ impl TeraFormatter{
     pub fn new() -> TeraFormatter{
         TeraFormatter{
         template :r#"
-        {% block head %}
-        <!DOCTYPE HTML><html><head><body>
-        {% endblock head %}
-        {% block songs %}
+        {% block head -%}
+        <!DOCTYPE HTML>
+        <html>
+        <head></head>
+        <body>
+        {%- endblock head -%}
+        {%- block songs -%}
         <div class="song">
             <h1>{{ song.title }}</h1>
             {%- for verse in song.verses %}
@@ -66,29 +69,29 @@ impl TeraFormatter{
 impl Formatter for TeraFormatter{
 
     fn pre(&self, _context: &mut Context) -> FormatResult{
-        let head_template = r#"{% extends "base" %}
-        {% block head %}{{ super() }}{% endblock head %}
-        {% block footer %}{% endblock footer %}
-        {% block songs %}}{% endblock songs %}"#.into();
+        let head_template = r#"{%- extends "base" -%}
+        {%- block head -%}{{ super() }}{%- endblock head -%}
+        {%- block footer -%}{%- endblock footer -%}
+        {%- block songs -%}{%- endblock songs -%}"#.into();
         let context = TeraContext::new();
         self.render_template(head_template, &context)
     }
 
     fn format(&self, song: Song, app_context: &mut Context) -> FormatResult{
-        let songs_template = r#"{% extends "base" %}
-        {% block head %}{% endblock head %}
-        {% block footer %}{% endblock footer %}
-        {% block songs %}{{ super() }}{% endblock songs %}"#.into();
+        let songs_template = r#"{%- extends "base" -%}
+        {%- block head -%}{%- endblock head -%}
+        {%- block footer -%}{%- endblock footer -%}
+        {%- block songs -%}{{ super() }}{%- endblock songs -%}"#.into();
         let mut context = TeraContext::new();
         context.insert("song", &song);
         self.render_template(songs_template, &context)
     }
 
     fn post(&self, _context: &mut Context) -> FormatResult{
-        let footer_template = r#"{% extends "base" %}
-        {% block head %}{% endblock head %}
-        {% block footer %}{% endblock footer %}
-        {% block songs %}}{{ super() }}{% endblock songs %}"#.into();
+        let footer_template = r#"{%- extends "base" -%}
+        {%- block head -%}{%- endblock head -%}
+        {%- block footer -%}{{ super() }}{%- endblock footer -%}
+        {%- block songs -%}{%- endblock songs -%}"#.into();
         let context = TeraContext::new();
         self.render_template(footer_template, &context)
     }
