@@ -2,6 +2,7 @@ use chordprostyle as lib;
 use lib::formatters::TeraFormatter;
 use lib::tri_parser::TriParser;
 use lib::Formatter;
+use lib::LibError;
 use clap::{Arg, App, ArgMatches};
 
 use std::io::BufReader;
@@ -27,16 +28,32 @@ fn main(){
             )
         .get_matches();
 
-    let iter = source_files(&args);
+    let result = go(&args);
     
-    let mut template_storage = String::new();
-    let formatter = formatter(&mut template_storage, &args).unwrap();
-
-    let mut parser = TriParser::new();
-    if let Err(errors) = lib::process_files(iter.unwrap(), &mut parser, formatter){
-        eprintln!("{:?}", errors);
-        std::process::exit(1);
+    match result {
+        Ok(processed_files) =>{
+            match processed_files {
+                Ok(no_error) => {;}
+                Err(some_errors) => {
+                    eprintln!("Following errors occured: {:?}", some_errors);
+                    std::process::exit(1);
+                }
+            }
+        }
+        Err(invocation_error) => {
+            eprintln!("error invoking program {:?}", invocation_error);
+            std::process::exit(100);
+        }
     }
+
+}
+
+fn go(args: &ArgMatches) -> Result<Result<(), Vec<(String, LibError)>>, LibError>{
+    let mut template_storage = String::new();
+    let formatter = formatter(&mut template_storage, &args)?;
+    let mut parser = TriParser::new();
+    let iter = source_files(&args)?;
+    Ok(lib::process_files(iter, &mut parser, formatter))
 }
 
 fn formatter<'a>(mut template_storage: &'a mut String, args: &'a ArgMatches) -> io::Result<TeraFormatter<'a>>{
