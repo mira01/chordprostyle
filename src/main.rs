@@ -37,7 +37,7 @@ fn main(){
     }
 
     let mut parser = TriParser::new();
-    let formatter = TeraFormatter::new();
+    let formatter = TeraFormatter::default(); //TeraFormatter::new();
     if let Err(errors) = lib::process_files(iter, &mut parser, formatter){
         eprintln!("{:?}", errors);
         std::process::exit(1);

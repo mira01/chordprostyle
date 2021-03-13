@@ -14,48 +14,15 @@ impl From<TeraError> for LibError{
     }
 }
 
-pub struct TeraFormatter{
-    template: String,
+pub struct TeraFormatter<'a>{
+    template: &'a str,
 }
 
-impl TeraFormatter{
-    pub fn new() -> TeraFormatter{
-        TeraFormatter{
-        template :r#"
-        {% block head -%}
-        <!DOCTYPE HTML>
-        <html>
-        <head></head>
-        <body>
-        {%- endblock head -%}
-        {%- block songs -%}
-        <div class="song">
-            <h1>{{ song.title }}</h1>
-            {%- for verse in song.verses %}
-               <div class="verse {{verse.verse_type}}">
-                    {% for line in verse.lines -%}
-                        <p class="line {%- if line.has_chords %} has_chords {%- endif %}">
-                            {%- for part in line.song_parts -%}
-                                {%- if part.type == "Chord" -%}
-                                    <span class="chord"><strong>{{part.content}}</strong></span>
-                                {%- elif part.type == "Directive" -%}
-                                    <span class="{{part.content.type}}">{{part.content.content}}</span>
-                                {%- else -%}
-                                    {{part.content}}
-                                {%- endif -%}
-                            {%- endfor -%}
-                        </p>
-                    {% endfor %}
-               </div>
-            {%- endfor %}
-        </div>
-        {%- endblock songs -%}
-        {%- block footer -%}
-        </body>
-        </html>
-        {%- endblock footer %}
-        "#.into(),
-        }
+
+impl TeraFormatter<'_>{
+
+    pub fn new<'a>(template: &'a str) -> TeraFormatter<'a>{
+        TeraFormatter{ template }
     }
 
     fn render_template(&self, override_template: &str, tera_context: &TeraContext) -> FormatResult{
@@ -63,11 +30,11 @@ impl TeraFormatter{
         tera.add_raw_template("base", &self.template)?;
         tera.add_raw_template("content", override_template)?;
         let res = tera.render("content", &tera_context)?;
-        Ok(res.into())
+        Ok(res)
     }
 }
 
-impl Formatter for TeraFormatter{
+impl Formatter for TeraFormatter<'_>{
 
     fn pre(&self, _context: &mut Context) -> FormatResult{
         // The inheritance and overriding of parts in templates is here to comply with pre, format
@@ -77,7 +44,7 @@ impl Formatter for TeraFormatter{
         let head_template = r#"{%- extends "base" -%}
         {%- block head -%}{{ super() }}{%- endblock head -%}
         {%- block footer -%}{%- endblock footer -%}
-        {%- block songs -%}{%- endblock songs -%}"#.into();
+        {%- block songs -%}{%- endblock songs -%}"#;
         let context = TeraContext::new();
         self.render_template(head_template, &context)
     }
@@ -86,7 +53,7 @@ impl Formatter for TeraFormatter{
         let songs_template = r#"{%- extends "base" -%}
         {%- block head -%}{%- endblock head -%}
         {%- block footer -%}{%- endblock footer -%}
-        {%- block songs -%}{{ super() }}{%- endblock songs -%}"#.into();
+        {%- block songs -%}{{ super() }}{%- endblock songs -%}"#;
         let mut context = TeraContext::new();
         context.insert("song", &song);
         self.render_template(songs_template, &context)
@@ -96,8 +63,50 @@ impl Formatter for TeraFormatter{
         let footer_template = r#"{%- extends "base" -%}
         {%- block head -%}{%- endblock head -%}
         {%- block footer -%}{{ super() }}{%- endblock footer -%}
-        {%- block songs -%}{%- endblock songs -%}"#.into();
+        {%- block songs -%}{%- endblock songs -%}"#;
         let context = TeraContext::new();
         self.render_template(footer_template, &context)
     }
+}
+
+impl Default for TeraFormatter<'_>{
+
+    fn default() -> Self{
+        const template: &str = r#"
+            {% block head -%}
+            <!DOCTYPE HTML>
+            <html>
+            <head></head>
+            <body>
+            {%- endblock head -%}
+            {%- block songs -%}
+            <div class="song">
+                <h1>{{ song.title }}</h1>
+                {%- for verse in song.verses %}
+                   <div class="verse {{verse.verse_type}}">
+                        {% for line in verse.lines -%}
+                            <p class="line {%- if line.has_chords %} has_chords {%- endif %}">
+                                {%- for part in line.song_parts -%}
+                                    {%- if part.type == "Chord" -%}
+                                        <span class="chord"><strong>{{part.content}}</strong></span>
+                                    {%- elif part.type == "Directive" -%}
+                                        <span class="{{part.content.type}}">{{part.content.content}}</span>
+                                    {%- else -%}
+                                        {{part.content}}
+                                    {%- endif -%}
+                                {%- endfor -%}
+                            </p>
+                        {% endfor %}
+                   </div>
+                {%- endfor %}
+            </div>
+            {%- endblock songs -%}
+            {%- block footer -%}
+            </body>
+            </html>
+            {%- endblock footer %}
+            "#;
+            Self::new(template)
+    }
+
 }
