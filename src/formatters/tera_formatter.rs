@@ -21,7 +21,7 @@ pub struct TeraFormatter<'a>{
 
 impl TeraFormatter<'_>{
 
-    pub fn new<'a>(template: &'a str) -> TeraFormatter<'a>{
+    pub fn new(template: &str) -> TeraFormatter<'_>{
         TeraFormatter{ template }
     }
 
@@ -72,7 +72,7 @@ impl Formatter for TeraFormatter<'_>{
 impl Default for TeraFormatter<'_>{
 
     fn default() -> Self{
-        const template: &str = r#"
+        const TEMPLATE: &str = r#"
             {% block head -%}
             <!DOCTYPE HTML>
             <html>
@@ -106,7 +106,7 @@ impl Default for TeraFormatter<'_>{
             </html>
             {%- endblock footer %}
             "#;
-            Self::new(template)
+            Self::new(TEMPLATE)
     }
 
 }

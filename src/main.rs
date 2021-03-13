@@ -1,14 +1,13 @@
 use chordprostyle as lib;
 use lib::formatters::TeraFormatter;
 use lib::tri_parser::TriParser;
-use lib::Formatter;
 use lib::LibError;
 use clap::{Arg, App, ArgMatches};
 
 use std::io::BufReader;
 use std::io::{BufRead, Read};
 use std::io;
-use std::fs::{self, File};
+use std::fs::File;
 
 fn main(){
     let args = App::new("ChordproStyle")
@@ -33,7 +32,7 @@ fn main(){
     match result {
         Ok(processed_files) =>{
             match processed_files {
-                Ok(no_error) => {;}
+                Ok(_) => {}
                 Err(some_errors) => {
                     eprintln!("Following errors occured: {:?}", some_errors);
                     std::process::exit(1);
@@ -60,7 +59,7 @@ fn formatter<'a>(mut template_storage: &'a mut String, args: &'a ArgMatches) -> 
     match args.value_of("template"){
         Some(template_file) => {
             let mut f = BufReader::new(File::open(template_file)?);
-            f.read_to_string(&mut template_storage);
+            f.read_to_string(&mut template_storage)?;
             Ok(TeraFormatter::new(template_storage))
         },
         None => {
