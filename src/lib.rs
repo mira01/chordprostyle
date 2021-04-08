@@ -57,7 +57,10 @@ impl Error for LibError{
 
 impl Display for LibError{
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error>{
-        write!(fmt, "{:?}", &self)
+        match &self {
+            LibError::IOError(ioerror) => write!(fmt, "{}", ioerror),
+            _ => write!(fmt, "{:?}", &self),
+        }
     }
 }
  

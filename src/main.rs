@@ -34,13 +34,16 @@ fn main(){
             match processed_files {
                 Ok(_) => {}
                 Err(some_errors) => {
-                    eprintln!("Following errors occured: {:?}", some_errors);
+                    eprintln!("Following errors occured:");
+                    some_errors.iter().for_each(|(file, err)|{
+                        eprintln!("{} -> {}", file, err);
+                    });
                     std::process::exit(1);
                 }
             }
         }
         Err(invocation_error) => {
-            eprintln!("error invoking program {:?}", invocation_error);
+            eprintln!("error invoking program {}", invocation_error);
             std::process::exit(100);
         }
     }
