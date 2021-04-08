@@ -8,6 +8,29 @@ use std::io::BufReader;
 use std::io::{BufRead, Read};
 use std::io;
 use std::fs::File;
+use std::error::Error;
+
+#[derive(Debug)]
+enum InvocationError{
+    // Could not get input files to process
+    InputReading(io::Error),
+    // Could not initialize formatter
+    FormatterInit(io::Error),
+}
+
+impl Error for InvocationError{}
+impl std::fmt::Display for InvocationError{
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        match &self {
+            InvocationError::InputReading(ioerror) => {
+                write!(fmt,
+                       "Expected files to process (either on command line or in file specified by -l) but: {}",
+                       ioerror
+                       )},
+            InvocationError::FormatterInit(ioerror) => write!(fmt, "{}", ioerror),
+        }
+    }
+}
 
 fn main(){
     let args = App::new("ChordproStyle")
@@ -43,18 +66,18 @@ fn main(){
             }
         }
         Err(invocation_error) => {
-            eprintln!("error invoking program {}", invocation_error);
+            eprintln!("{}", invocation_error);
             std::process::exit(100);
         }
     }
 
 }
 
-fn go(args: &ArgMatches) -> Result<Result<(), Vec<(String, LibError)>>, LibError>{
+fn go(args: &ArgMatches) -> Result<Result<(), Vec<(String, LibError)>>, InvocationError>{
     let mut template_storage = String::new();
-    let formatter = formatter(&mut template_storage, &args)?;
+    let formatter = formatter(&mut template_storage, &args).map_err(|e| InvocationError::FormatterInit(e))?;
     let mut parser = TriParser::new();
-    let iter = source_files(&args)?;
+    let iter = source_files(&args).map_err(|e| InvocationError::InputReading(e))?;
     Ok(lib::process_files(iter, &mut parser, formatter))
 }
 
