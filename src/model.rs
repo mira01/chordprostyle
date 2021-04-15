@@ -1,29 +1,7 @@
 use std::fmt;
 use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(tag = "type", content = "content")]
-#[non_exhaustive]
-pub enum SongPart{
-    Text(String),
-    Chord(String),
-    Directive(DirectiveType),
-    NewLine,
-    Empty,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(tag = "type", content = "content")]
-#[non_exhaustive]
-pub enum DirectiveType{
-    Title(String),
-    NewSong,
-    ChorusStart,
-    ChorusEnd,
-    Comment(String),
-    Other(String),
-}
-
+/// Main high-level structure representing one song
 #[derive(Debug, PartialEq, Serialize)]
 pub struct Song{
     pub title: String,
@@ -42,6 +20,9 @@ impl Size for Song{
     }
 }
 
+/// High-level structure representing verse in a Song
+///
+/// See VerseType struct to see what types of verses are supported
 #[derive(Debug, PartialEq, Serialize)]
 pub struct Verse{
     pub verse_type: VerseType,
@@ -56,12 +37,15 @@ impl Size for Verse{
     }
 }
 
+/// Useful for determining whether the Verse is a Chorus
 #[derive(Debug, PartialEq, Serialize)]
+#[non_exhaustive]
 pub enum VerseType{
     Common,
     Chorus,
 }
 
+/// One Line within a Verse. May be a Line without any text
 #[derive(PartialEq, Serialize)]
 pub struct Line{
     pub has_chords: bool,
@@ -92,6 +76,32 @@ impl Size for Line{
     }
 }
 
+/// Structure representing primitive elements of single Song
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(tag = "type", content = "content")]
+#[non_exhaustive]
+pub enum SongPart{
+    Text(String),
+    Chord(String),
+    Directive(DirectiveType),
+    NewLine,
+    Empty,
+}
+
+/// Recognized directives of chordpro fileformat
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(tag = "type", content = "content")]
+#[non_exhaustive]
+pub enum DirectiveType{
+    Title(String),
+    NewSong,
+    ChorusStart,
+    ChorusEnd,
+    Comment(String),
+    Other(String),
+}
+
+// not used yet
 pub trait Size{
     fn width(&self) -> usize;
     fn height(&self) -> usize;

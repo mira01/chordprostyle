@@ -14,10 +14,12 @@ impl From<TeraError> for LibError{
     }
 }
 
+/// Formatter based on Tera library.
+///
+/// Expects a Jinja2-like template described in [https://tera.netlify.app/docs/]
 pub struct TeraFormatter<'a>{
     template: &'a str,
 }
-
 
 impl TeraFormatter<'_>{
 
@@ -108,5 +110,4 @@ impl Default for TeraFormatter<'_>{
             "#;
             Self::new(TEMPLATE)
     }
-
 }

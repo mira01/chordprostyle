@@ -3,6 +3,9 @@ use crate::Context;
 use crate::Formatter;
 use crate::FormatResult;
 
+/// Example HTML formatter. Not considered to be used for anything useful.
+pub struct ParseFormatter();
+
 impl Formatter for ParseFormatter{
     fn pre(&self, _context: &mut Context) -> FormatResult{
     Ok("<html>
@@ -18,17 +21,10 @@ impl Formatter for ParseFormatter{
         let number = context.next_number();
         output.push_str(&format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title));
         for ref verse in &song.verses{
-
-
-         ////// V
             let chorus = match verse.verse_type{
                 VerseType::Chorus => " ref",
                 _ => "",
             };
-        ////// ^
-
-
-
             output.push_str(&format!("\t<div class='verse {}'>\n", chorus));
             {
                 for ref line in &verse.lines{
@@ -54,8 +50,6 @@ impl Formatter for ParseFormatter{
     }
 }
 
-pub struct ParseFormatter();
-
 impl ParseFormatter{
 
     fn format_song_part(&self, part: &SongPart) -> String{
@@ -63,7 +57,7 @@ impl ParseFormatter{
             SongPart::Text(t) => t.to_owned(),
             SongPart::Chord(t) => format!("<span class='chord'><strong class='chord'>{}</strong></span>", t.to_owned()),
             SongPart::Directive(DirectiveType::Comment(t)) => format!("<span class='comment'>{}</span>", t.to_owned()),
-            _ => String::from("XXXXXX"),
+            _ => String::from(""),
         }
     }
 }

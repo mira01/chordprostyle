@@ -51,7 +51,7 @@ fn main(){
         .get_matches();
 
     let result = go(&args);
-    
+
     match result {
         Ok(processed_files) =>{
             match processed_files {

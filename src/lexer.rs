@@ -3,6 +3,8 @@ use crate::model::{SongPart, DirectiveType};
 use std::str::Chars;
 use std::iter::Peekable;
 
+/// Iterator emitting SongParts to be used with higher level parser 
+/// Expects stream of Chars in chordpro file format
 #[derive(Debug)]
 pub struct Lexer<'a>{
     stream: Peekable<Chars<'a>>,
@@ -88,11 +90,10 @@ impl<'a> Iterator for Lexer<'a>{
 #[cfg(test)]
 mod tests{
     use crate::model::{SongPart, DirectiveType};
-    use super::*;
 
     #[test]
     fn test_lex(){
-        let mut contents = String::from("{ns}
+        let contents = String::from("{ns}
 {t: SongTitle}
 [C]v jedne [Am]morske [Dm7]pustine
 ztroskotal parnik v hlubine
@@ -101,7 +102,7 @@ ztroskotal parnik v hlubine
 [C]ryba roba [Am]ryba roba [Dm]ryba roba [G] cucu
 {eoc}");
         let chars = contents.chars();
-        let mut lexresult = super::lex(chars);
+        let mut lexresult = super::Lexer::new(chars);
         assert_eq!(lexresult.next().unwrap(), SongPart::Directive(DirectiveType::NewSong));
         assert_eq!(lexresult.next().unwrap(), SongPart::NewLine);
 

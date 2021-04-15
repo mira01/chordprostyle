@@ -7,19 +7,20 @@ use std::io;
 use std::fs;
 use std::error::Error;
 use std::fmt::Display;
-
 use std::str::Chars;
 
 use model::Song;
 
 type ParseResult = Result<Song, LibError>;
 
+/// Trait for parsers returning a possible Song
 pub trait Parser{
     fn parse(&mut self, chars: Chars) -> ParseResult;
 }
 
 type FormatResult = Result<String, LibError>;
 
+/// Trait that formats Songs into Strings
 pub trait Formatter{
     fn pre(&self, context: &mut Context) -> FormatResult;
     fn format(&self, song: Song, context: &mut Context) -> FormatResult;
@@ -51,9 +52,7 @@ pub enum LibError{
     FormatError(Box<dyn Error>),
 }
 
-impl Error for LibError{
-
-}
+impl Error for LibError{ }
 
 impl Display for LibError{
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error>{
@@ -63,13 +62,14 @@ impl Display for LibError{
         }
     }
 }
- 
+
 impl From<io::Error> for LibError{
     fn from(error: io::Error) -> Self{
         LibError::IOError(error)
     }
 }
 
+/// Takes file-paths iterator, parses the file using parser and then formats the result
 pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F) -> Result<(), Vec<(String, LibError)>>
     where I: Iterator<Item=String>,
           P: Parser,

@@ -252,5 +252,3 @@ fn unwrap(triplet: (Option<SongPart>, Option<SongPart>, Option<SongPart>)) -> (S
     let (a, b, c) = triplet;
     (a.unwrap(), b.unwrap(), c.unwrap())
 }
-
-
