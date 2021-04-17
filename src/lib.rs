@@ -36,7 +36,7 @@ pub trait Formatter<T: Context>{
 /// Context provides ability to do it.
 pub trait Context{
     fn set(&mut self, key: &str, value: Box<dyn Any + 'static>) -> ();
-    fn get(&self, key: &str) -> Option<&Box<dyn Any + 'static>>;
+    fn get<T: 'static>(&self, key: &str) -> Option<&T>;
 }
 
 #[derive(Default)]
@@ -55,8 +55,10 @@ impl Context for KeyValueStore{
     fn set(&mut self, key: &str, value: Box<dyn Any + 'static>) -> (){
         self.map.insert(key.to_owned(), value);
     }
-    fn get(&self, key: &str) -> Option<&Box<dyn Any +'static>> {
-        self.map.get(key)
+    fn get<T: 'static>(&self, key: &str) -> Option<&T> {
+        self.map.get(key).map(|boxed|{
+            (*boxed).downcast_ref::<T>().unwrap()
+        })
     }
 }
 

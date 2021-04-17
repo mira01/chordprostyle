@@ -18,8 +18,11 @@ impl<T: Context> Formatter<T> for ParseFormatter{
 
     fn format(&self, song: Song, context: &mut T) -> FormatResult{
         let mut output = String::new();
-        //let number = context.next_number();
-        let number = 1;
+        let number = match context.get::<i32>("number"){
+            Some(n) => *n,
+            None => 0i32,
+        } + 1;
+        context.set("number", Box::new(number));
         output.push_str(&format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title));
         for ref verse in &song.verses{
             let chorus = match verse.verse_type{
