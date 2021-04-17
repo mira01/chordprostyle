@@ -6,8 +6,8 @@ use crate::FormatResult;
 /// Example HTML formatter. Not considered to be used for anything useful.
 pub struct ParseFormatter();
 
-impl Formatter for ParseFormatter{
-    fn pre(&self, _context: &mut Context) -> FormatResult{
+impl<T: Context> Formatter<T> for ParseFormatter{
+    fn pre(&self, _context: &mut T) -> FormatResult{
     Ok("<html>
         <head><
         link rel='stylesheet' href='styl5.css'>
@@ -16,9 +16,10 @@ impl Formatter for ParseFormatter{
         <body>".to_string())
     }
 
-    fn format(&self, song: Song, context: &mut Context) -> FormatResult{
+    fn format(&self, song: Song, context: &mut T) -> FormatResult{
         let mut output = String::new();
-        let number = context.next_number();
+        //let number = context.next_number();
+        let number = 1;
         output.push_str(&format!("\n<div class='song'>\n\t<h1><span class='number'>{}</span>{}</h1>\n", &number, &song.title));
         for ref verse in &song.verses{
             let chorus = match verse.verse_type{
@@ -45,7 +46,7 @@ impl Formatter for ParseFormatter{
         Ok(output)
     }
 
-    fn post(&self, _context: &mut Context) -> FormatResult{
+    fn post(&self, _context: &mut T) -> FormatResult{
         Ok("</body></html>".to_string())
     }
 }

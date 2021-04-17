@@ -9,6 +9,9 @@ use std::error::Error;
 use std::fmt::Display;
 use std::str::Chars;
 
+use std::any::Any;
+use std::collections::HashMap;
+
 use model::Song;
 
 type ParseResult = Result<Song, LibError>;
@@ -21,26 +24,39 @@ pub trait Parser{
 type FormatResult = Result<String, LibError>;
 
 /// Trait that formats Songs into Strings
-pub trait Formatter{
-    fn pre(&self, context: &mut Context) -> FormatResult;
-    fn format(&self, song: Song, context: &mut Context) -> FormatResult;
-    fn post(&self, context: &mut Context) -> FormatResult;
+pub trait Formatter<T: Context>{
+    fn pre(&self, context: &mut T) -> FormatResult;
+    fn format(&self, song: Song, context: &mut T) -> FormatResult;
+    fn post(&self, context: &mut T) -> FormatResult;
+}
+
+/// Trait defining container for custom data.
+///
+/// Formatters may want to save and retrieve some data while formatting songs.
+/// Context provides ability to do it.
+pub trait Context{
+    fn set(&mut self, key: &str, value: Box<dyn Any + 'static>) -> ();
+    fn get(&self, key: &str) -> Option<&Box<dyn Any + 'static>>;
 }
 
 #[derive(Default)]
-pub struct Context{
-    number: usize,
+pub struct KeyValueStore{
+    map: HashMap<String, Box<dyn Any + 'static>>,
 }
-impl Context{
-    pub fn new() -> Context{
-        Context{
-            number: 0,
+impl KeyValueStore{
+    pub fn new() -> KeyValueStore{
+        KeyValueStore{
+            map: HashMap::new(),
         }
     }
+}
 
-    pub fn next_number(&mut self) -> usize{
-        self.number += 1;
-        self.number
+impl Context for KeyValueStore{
+    fn set(&mut self, key: &str, value: Box<dyn Any + 'static>) -> (){
+        self.map.insert(key.to_owned(), value);
+    }
+    fn get(&self, key: &str) -> Option<&Box<dyn Any +'static>> {
+        self.map.get(key)
     }
 }
 
@@ -70,14 +86,15 @@ impl From<io::Error> for LibError{
 }
 
 /// Takes file-paths iterator, parses the file using parser and then formats the result
-pub fn process_files<I, P, F>(paths: I, parser: &mut P, formatter: F) -> Result<(), Vec<(String, LibError)>>
+/// WARNING this function is not cosidered stable API
+pub fn process_files<I, P, F, C>(paths: I, parser: &mut P, formatter: F, mut context: &mut C) -> Result<(), Vec<(String, LibError)>>
     where I: Iterator<Item=String>,
           P: Parser,
-          F: Formatter,
+          C: Context,
+          F: Formatter<C>,
 {
-    let mut context = Context::new();
     let mut errors = Vec::new();
-    match formatter.pre(&mut context){
+    match formatter.pre(context){
         Ok(output) => print!("{}", output),
         Err(e) => errors.push((".".into(), e)),
     }

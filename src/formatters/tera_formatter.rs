@@ -36,9 +36,9 @@ impl TeraFormatter<'_>{
     }
 }
 
-impl Formatter for TeraFormatter<'_>{
+impl<T: Context> Formatter<T> for TeraFormatter<'_>{
 
-    fn pre(&self, _context: &mut Context) -> FormatResult{
+    fn pre(&self, _context: &mut T) -> FormatResult{
         // The inheritance and overriding of parts in templates is here to comply with pre, format
         // and post methods in Formatter trait.
         // Basicaly I have three parts in base template and in each method of Formatter trait I
@@ -51,7 +51,7 @@ impl Formatter for TeraFormatter<'_>{
         self.render_template(head_template, &context)
     }
 
-    fn format(&self, song: Song, _app_context: &mut Context) -> FormatResult{
+    fn format(&self, song: Song, _app_context: &mut T) -> FormatResult{
         let songs_template = r#"{%- extends "base" -%}
         {%- block head -%}{%- endblock head -%}
         {%- block footer -%}{%- endblock footer -%}
@@ -61,7 +61,7 @@ impl Formatter for TeraFormatter<'_>{
         self.render_template(songs_template, &context)
     }
 
-    fn post(&self, _context: &mut Context) -> FormatResult{
+    fn post(&self, _context: &mut T) -> FormatResult{
         let footer_template = r#"{%- extends "base" -%}
         {%- block head -%}{%- endblock head -%}
         {%- block footer -%}{{ super() }}{%- endblock footer -%}

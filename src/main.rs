@@ -2,6 +2,7 @@ use chordprostyle as lib;
 use lib::formatters::TeraFormatter;
 use lib::tri_parser::TriParser;
 use lib::LibError;
+use lib::KeyValueStore;
 use clap::{Arg, App, ArgMatches};
 
 use std::io::BufReader;
@@ -10,6 +11,8 @@ use std::io;
 use std::fs::File;
 use std::error::Error;
 
+
+/// Error caused by program invocation
 #[derive(Debug)]
 enum InvocationError{
     // Could not get input files to process
@@ -73,12 +76,41 @@ fn main(){
 
 }
 
+fn test_template() -> String{
+r#"{% block head -%}{% endblock head -%}
+{% block footer -%}{% endblock footer -%}
+{% block songs -%}
+{ns}
+{t: {{ song.title }}}
+{% for verse in song.verses %}
+    {% if verse.verse_type == "Chorus" -%}
+    {soc}
+    {%- endif -%}
+    {% for line in verse.lines %}
+        {%- for part in line.song_parts -%}
+            {%- if part.type == "Chord" -%}
+                [{{ part.content }}]
+            {%- elif part.type == "Directive" -%}
+                { {{ part.content.type }} : {{ part.content.content }} }
+            {%- else -%}
+                {{ part.content }}
+            {%- endif -%}
+        {%- endfor %}
+    {% endfor -%}
+    {% if verse.verse_type == "Chorus" -%}
+    {eoc}
+    {%- endif -%}
+{%- endfor -%}
+{%- endblock songs -%}"#.to_string()
+}
+
 fn go(args: &ArgMatches) -> Result<Result<(), Vec<(String, LibError)>>, InvocationError>{
     let mut template_storage = String::new();
     let formatter = formatter(&mut template_storage, &args).map_err(|e| InvocationError::FormatterInit(e))?;
     let mut parser = TriParser::new();
     let iter = source_files(&args).map_err(|e| InvocationError::InputReading(e))?;
-    Ok(lib::process_files(iter, &mut parser, formatter))
+    let mut context = KeyValueStore::new();
+    Ok(lib::process_files(iter, &mut parser, formatter, &mut context))
 }
 
 fn formatter<'a>(mut template_storage: &'a mut String, args: &'a ArgMatches) -> io::Result<TeraFormatter<'a>>{
