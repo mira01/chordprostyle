@@ -15,9 +15,9 @@ use std::error::Error;
 /// Error caused by program invocation
 #[derive(Debug)]
 enum InvocationError{
-    // Could not get input files to process
+    /// Could not get input files to process
     InputReading(io::Error),
-    // Could not initialize formatter
+    /// Could not initialize formatter
     FormatterInit(io::Error),
 }
 
